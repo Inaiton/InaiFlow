@@ -1,8 +1,21 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "if [ -n \"$DATABASE_URL_MIGRATIONS\" ]; then python3 -m pip install -q uv && uv run --frozen alembic upgrade head; fi",
   "functions": {
-    "api/index.py": { "maxDuration": 60 }
+    "api/index.py": {
+      "maxDuration": 60
+    }
   },
-  "rewrites": [{ "source": "/(.*)", "destination": "/api/index" }],
-  "crons": [{ "path": "/api/v1/internal/cron/daily", "schedule": "30 20 * * *" }]
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/api/index"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/v1/internal/cron/daily",
+      "schedule": "30 20 * * *"
+    }
+  ]
 }
