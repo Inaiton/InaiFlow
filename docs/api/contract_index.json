@@ -1,0 +1,2934 @@
+[
+  {
+    "method": "GET",
+    "path": "/api/v1/health",
+    "auth": "public",
+    "permission": null,
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "HealthOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/meta/states",
+    "auth": "public",
+    "permission": null,
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "StateOut[]"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/meta/permission-keys",
+    "auth": "public",
+    "permission": null,
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "PermissionModuleOut[]"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/internal/cron/daily",
+    "auth": "cron",
+    "permission": null,
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "CronResultOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/auth/signup",
+    "auth": "public",
+    "permission": null,
+    "admin_roles": null,
+    "status": 201,
+    "request": "SignupIn",
+    "response": "SignupOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/auth/verify-email",
+    "auth": "public",
+    "permission": null,
+    "admin_roles": null,
+    "status": 204,
+    "request": "VerifyEmailIn",
+    "response": null
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/auth/resend-verification",
+    "auth": "public",
+    "permission": null,
+    "admin_roles": null,
+    "status": 204,
+    "request": "EmailIn",
+    "response": null
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/auth/login",
+    "auth": "public",
+    "permission": null,
+    "admin_roles": null,
+    "status": 200,
+    "request": "LoginIn",
+    "response": "LoginOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/auth/mfa/verify",
+    "auth": "public",
+    "permission": null,
+    "admin_roles": null,
+    "status": 200,
+    "request": "MfaVerifyIn",
+    "response": "LoginSuccessOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/auth/refresh",
+    "auth": "public",
+    "permission": null,
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "LoginSuccessOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/auth/logout",
+    "auth": "public",
+    "permission": null,
+    "admin_roles": null,
+    "status": 204,
+    "request": null,
+    "response": null
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/auth/password/forgot",
+    "auth": "public",
+    "permission": null,
+    "admin_roles": null,
+    "status": 204,
+    "request": "EmailIn",
+    "response": null
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/auth/password/reset",
+    "auth": "public",
+    "permission": null,
+    "admin_roles": null,
+    "status": 204,
+    "request": "PasswordResetIn",
+    "response": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/auth/oauth/google/start",
+    "auth": "public",
+    "permission": null,
+    "admin_roles": null,
+    "status": 302,
+    "request": null,
+    "response": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/auth/oauth/google/callback",
+    "auth": "public",
+    "permission": null,
+    "admin_roles": null,
+    "status": 302,
+    "request": null,
+    "response": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/me",
+    "auth": "user",
+    "permission": null,
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "MeOut"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/me",
+    "auth": "user",
+    "permission": null,
+    "admin_roles": null,
+    "status": 200,
+    "request": "MeUpdateIn",
+    "response": "MeOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/me/files/upload-url",
+    "auth": "user",
+    "permission": null,
+    "admin_roles": null,
+    "status": 200,
+    "request": "MeFileUploadIn",
+    "response": "UploadTicket"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/me/password",
+    "auth": "user",
+    "permission": null,
+    "admin_roles": null,
+    "status": 204,
+    "request": "PasswordChangeIn",
+    "response": null
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/me/mfa/setup",
+    "auth": "user",
+    "permission": null,
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "MfaSetupOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/me/mfa/enable",
+    "auth": "user",
+    "permission": null,
+    "admin_roles": null,
+    "status": 200,
+    "request": "MfaCodeIn",
+    "response": "RecoveryCodesOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/me/mfa/disable",
+    "auth": "user",
+    "permission": null,
+    "admin_roles": null,
+    "status": 204,
+    "request": "MfaDisableIn",
+    "response": null
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/me/mfa/recovery-codes",
+    "auth": "user",
+    "permission": null,
+    "admin_roles": null,
+    "status": 200,
+    "request": "MfaCodeIn",
+    "response": "RecoveryCodesOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/me/sessions",
+    "auth": "user",
+    "permission": null,
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "SessionOut[]"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/me/sessions/{session_id}",
+    "auth": "user",
+    "permission": null,
+    "admin_roles": null,
+    "status": 204,
+    "request": null,
+    "response": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/me/organizations",
+    "auth": "user",
+    "permission": null,
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "MyOrgOut[]"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/me/invitations",
+    "auth": "user",
+    "permission": null,
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "InvitationForMeOut[]"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/me/invitations/{invitation_id}/accept",
+    "auth": "user",
+    "permission": null,
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "MyOrgOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/me/invitations/{invitation_id}/decline",
+    "auth": "user",
+    "permission": null,
+    "admin_roles": null,
+    "status": 204,
+    "request": null,
+    "response": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/me/join-requests",
+    "auth": "user",
+    "permission": null,
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "MyJoinRequestOut[]"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/me/join-requests",
+    "auth": "user",
+    "permission": null,
+    "admin_roles": null,
+    "status": 201,
+    "request": "JoinRequestIn",
+    "response": "MyJoinRequestOut"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/me/join-requests/{request_id}",
+    "auth": "user",
+    "permission": null,
+    "admin_roles": null,
+    "status": 204,
+    "request": null,
+    "response": null
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/organizations",
+    "auth": "user",
+    "permission": null,
+    "admin_roles": null,
+    "status": 201,
+    "request": "OrgCreateIn",
+    "response": "MyOrgOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/organizations/check-slug",
+    "auth": "user",
+    "permission": null,
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "OkOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/org/context",
+    "auth": "org",
+    "permission": null,
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "OrgContextOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/organization/profile",
+    "auth": "org",
+    "permission": "organization.profile:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "OrgOut"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/organization/profile",
+    "auth": "org",
+    "permission": "organization.profile:FULL",
+    "admin_roles": null,
+    "status": 200,
+    "request": "OrgUpdateIn",
+    "response": "OrgOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/organization/files/upload-url",
+    "auth": "org",
+    "permission": "organization.profile:FULL",
+    "admin_roles": null,
+    "status": 200,
+    "request": "OrgFileUploadIn",
+    "response": "UploadTicket"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/organization/branches",
+    "auth": "org",
+    "permission": "organization.profile:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "BranchOut[]"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/organization/branches",
+    "auth": "org",
+    "permission": "organization.profile:FULL",
+    "admin_roles": null,
+    "status": 201,
+    "request": "BranchIn",
+    "response": "BranchOut"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/organization/branches/{branch_id}",
+    "auth": "org",
+    "permission": "organization.profile:FULL",
+    "admin_roles": null,
+    "status": 200,
+    "request": "BranchIn",
+    "response": "BranchOut"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/organization/branches/{branch_id}",
+    "auth": "org",
+    "permission": "organization.profile:FULL",
+    "admin_roles": null,
+    "status": 204,
+    "request": null,
+    "response": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/organization/members",
+    "auth": "org",
+    "permission": "organization.members:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "MemberOut[]"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/organization/members/{membership_id}",
+    "auth": "org",
+    "permission": "organization.members:FULL",
+    "admin_roles": null,
+    "status": 200,
+    "request": "MemberUpdateIn",
+    "response": "MemberOut"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/organization/members/{membership_id}",
+    "auth": "org",
+    "permission": "organization.members:FULL",
+    "admin_roles": null,
+    "status": 204,
+    "request": null,
+    "response": null
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/organization/transfer-ownership",
+    "auth": "org",
+    "permission": "organization.members:FULL",
+    "admin_roles": null,
+    "status": 204,
+    "request": "TransferOwnershipIn",
+    "response": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/organization/invitations",
+    "auth": "org",
+    "permission": "organization.members:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "InvitationOut[]"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/organization/invitations",
+    "auth": "org",
+    "permission": "organization.members:FULL",
+    "admin_roles": null,
+    "status": 201,
+    "request": "InvitationIn",
+    "response": "InvitationOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/organization/invitations/{invitation_id}/resend",
+    "auth": "org",
+    "permission": "organization.members:FULL",
+    "admin_roles": null,
+    "status": 204,
+    "request": null,
+    "response": null
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/organization/invitations/{invitation_id}",
+    "auth": "org",
+    "permission": "organization.members:FULL",
+    "admin_roles": null,
+    "status": 204,
+    "request": null,
+    "response": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/organization/join-requests",
+    "auth": "org",
+    "permission": "organization.members:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "JoinRequestOut[]"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/organization/join-requests/{request_id}/approve",
+    "auth": "org",
+    "permission": "organization.members:FULL",
+    "admin_roles": null,
+    "status": 200,
+    "request": "JoinDecisionIn",
+    "response": "MemberOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/organization/join-requests/{request_id}/reject",
+    "auth": "org",
+    "permission": "organization.members:FULL",
+    "admin_roles": null,
+    "status": 204,
+    "request": null,
+    "response": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/organization/roles",
+    "auth": "org",
+    "permission": "organization.roles_rbac:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "RoleOut[]"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/organization/roles",
+    "auth": "org",
+    "permission": "organization.roles_rbac:FULL",
+    "admin_roles": null,
+    "status": 201,
+    "request": "RoleIn",
+    "response": "RoleOut"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/organization/roles/{role_id}",
+    "auth": "org",
+    "permission": "organization.roles_rbac:FULL",
+    "admin_roles": null,
+    "status": 200,
+    "request": "RoleUpdateIn",
+    "response": "RoleOut"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/organization/roles/{role_id}",
+    "auth": "org",
+    "permission": "organization.roles_rbac:FULL",
+    "admin_roles": null,
+    "status": 204,
+    "request": null,
+    "response": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/organization/acl",
+    "auth": "org",
+    "permission": "organization.roles_rbac:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "AclOut[]"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/v1/organization/acl",
+    "auth": "org",
+    "permission": "organization.roles_rbac:FULL",
+    "admin_roles": null,
+    "status": 200,
+    "request": "AclIn",
+    "response": "AclOut"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/organization/acl/{acl_id}",
+    "auth": "org",
+    "permission": "organization.roles_rbac:FULL",
+    "admin_roles": null,
+    "status": 204,
+    "request": null,
+    "response": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/organization/security",
+    "auth": "org",
+    "permission": "organization.security_policies:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "SecuritySettings"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/v1/organization/security",
+    "auth": "org",
+    "permission": "organization.security_policies:FULL",
+    "admin_roles": null,
+    "status": 200,
+    "request": "SecuritySettings",
+    "response": "SecuritySettings"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/organization/audit-logs",
+    "auth": "org",
+    "permission": "organization.audit_logs:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "Page<AuditLogOut>"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/organization/billing",
+    "auth": "org",
+    "permission": "organization.billing:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "BillingOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/groups",
+    "auth": "org",
+    "permission": "accounts.ledgers_groups:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "GroupOut[]"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/accounts/groups",
+    "auth": "org",
+    "permission": "accounts.ledgers_groups:WRITE",
+    "admin_roles": null,
+    "status": 201,
+    "request": "GroupIn",
+    "response": "GroupOut"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/accounts/groups/{group_id}",
+    "auth": "org",
+    "permission": "accounts.ledgers_groups:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": "GroupUpdateIn",
+    "response": "GroupOut"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/accounts/groups/{group_id}",
+    "auth": "org",
+    "permission": "accounts.ledgers_groups:FULL",
+    "admin_roles": null,
+    "status": 204,
+    "request": null,
+    "response": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/ledgers",
+    "auth": "org",
+    "permission": "accounts.ledgers_groups:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "Page<LedgerOut>"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/accounts/ledgers",
+    "auth": "org",
+    "permission": "accounts.ledgers_groups:WRITE",
+    "admin_roles": null,
+    "status": 201,
+    "request": "LedgerIn",
+    "response": "LedgerOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/ledgers/{ledger_id}",
+    "auth": "org",
+    "permission": "accounts.ledgers_groups:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "LedgerOut"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/accounts/ledgers/{ledger_id}",
+    "auth": "org",
+    "permission": "accounts.ledgers_groups:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": "LedgerIn",
+    "response": "LedgerOut"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/accounts/ledgers/{ledger_id}",
+    "auth": "org",
+    "permission": "accounts.ledgers_groups:FULL",
+    "admin_roles": null,
+    "status": 204,
+    "request": null,
+    "response": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/ledgers/{ledger_id}/statement",
+    "auth": "org",
+    "permission": "accounts.reports:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "LedgerStatementOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/ledgers/{ledger_id}/bills",
+    "auth": "org",
+    "permission": "accounts.vouchers:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "OutstandingBillOut[]"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/cost-centres",
+    "auth": "org",
+    "permission": "accounts.ledgers_groups:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "CostCentreOut[]"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/accounts/cost-centres",
+    "auth": "org",
+    "permission": "accounts.ledgers_groups:WRITE",
+    "admin_roles": null,
+    "status": 201,
+    "request": "CostCentreIn",
+    "response": "CostCentreOut"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/accounts/cost-centres/{cost_centre_id}",
+    "auth": "org",
+    "permission": "accounts.ledgers_groups:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": "CostCentreIn",
+    "response": "CostCentreOut"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/accounts/cost-centres/{cost_centre_id}",
+    "auth": "org",
+    "permission": "accounts.ledgers_groups:FULL",
+    "admin_roles": null,
+    "status": 204,
+    "request": null,
+    "response": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/voucher-types",
+    "auth": "org",
+    "permission": "accounts.vouchers:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "VoucherTypeOut[]"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/accounts/voucher-types",
+    "auth": "org",
+    "permission": "accounts.vouchers:FULL",
+    "admin_roles": null,
+    "status": 201,
+    "request": "VoucherTypeIn",
+    "response": "VoucherTypeOut"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/accounts/voucher-types/{voucher_type_id}",
+    "auth": "org",
+    "permission": "accounts.vouchers:FULL",
+    "admin_roles": null,
+    "status": 200,
+    "request": "VoucherTypeUpdateIn",
+    "response": "VoucherTypeOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/currencies",
+    "auth": "org",
+    "permission": "accounts.ledgers_groups:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "CurrencyOut[]"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/accounts/currencies",
+    "auth": "org",
+    "permission": "accounts.ledgers_groups:WRITE",
+    "admin_roles": null,
+    "status": 201,
+    "request": "CurrencyIn",
+    "response": "CurrencyOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/accounts/currencies/{currency_id}/rates",
+    "auth": "org",
+    "permission": "accounts.ledgers_groups:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": "ExchangeRateIn",
+    "response": "CurrencyOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/godowns",
+    "auth": "org",
+    "permission": "accounts.inventory_masters:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "GodownOut[]"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/accounts/godowns",
+    "auth": "org",
+    "permission": "accounts.inventory_masters:WRITE",
+    "admin_roles": null,
+    "status": 201,
+    "request": "GodownIn",
+    "response": "GodownOut"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/accounts/godowns/{godown_id}",
+    "auth": "org",
+    "permission": "accounts.inventory_masters:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": "GodownIn",
+    "response": "GodownOut"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/accounts/godowns/{godown_id}",
+    "auth": "org",
+    "permission": "accounts.inventory_masters:FULL",
+    "admin_roles": null,
+    "status": 204,
+    "request": null,
+    "response": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/stock-groups",
+    "auth": "org",
+    "permission": "accounts.inventory_masters:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "StockGroupOut[]"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/accounts/stock-groups",
+    "auth": "org",
+    "permission": "accounts.inventory_masters:WRITE",
+    "admin_roles": null,
+    "status": 201,
+    "request": "StockGroupIn",
+    "response": "StockGroupOut"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/accounts/stock-groups/{stock_group_id}",
+    "auth": "org",
+    "permission": "accounts.inventory_masters:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": "StockGroupIn",
+    "response": "StockGroupOut"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/accounts/stock-groups/{stock_group_id}",
+    "auth": "org",
+    "permission": "accounts.inventory_masters:FULL",
+    "admin_roles": null,
+    "status": 204,
+    "request": null,
+    "response": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/stock-items",
+    "auth": "org",
+    "permission": "accounts.inventory_masters:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "Page<StockItemOut>"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/accounts/stock-items",
+    "auth": "org",
+    "permission": "accounts.inventory_masters:WRITE",
+    "admin_roles": null,
+    "status": 201,
+    "request": "StockItemIn",
+    "response": "StockItemOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/stock-items/{item_id}",
+    "auth": "org",
+    "permission": "accounts.inventory_masters:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "StockItemOut"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/accounts/stock-items/{item_id}",
+    "auth": "org",
+    "permission": "accounts.inventory_masters:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": "StockItemIn",
+    "response": "StockItemOut"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/accounts/stock-items/{item_id}",
+    "auth": "org",
+    "permission": "accounts.inventory_masters:FULL",
+    "admin_roles": null,
+    "status": 204,
+    "request": null,
+    "response": null
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/accounts/stock-items/upload-url",
+    "auth": "org",
+    "permission": "accounts.inventory_masters:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": "StockItemUploadIn",
+    "response": "UploadTicket"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/settings",
+    "auth": "org",
+    "permission": "accounts.vouchers:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "AccountsSettings"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/v1/accounts/settings",
+    "auth": "org",
+    "permission": "accounts.vouchers:FULL",
+    "admin_roles": null,
+    "status": 200,
+    "request": "AccountsSettings",
+    "response": "AccountsSettings"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/vouchers",
+    "auth": "org",
+    "permission": "accounts.vouchers:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "Page<VoucherSummary>"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/accounts/vouchers",
+    "auth": "org",
+    "permission": "accounts.vouchers:WRITE",
+    "admin_roles": null,
+    "status": 201,
+    "request": "VoucherIn",
+    "response": "VoucherOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/accounts/vouchers/compute-tax",
+    "auth": "org",
+    "permission": "accounts.vouchers:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": "ComputeTaxIn",
+    "response": "ComputeTaxOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/vouchers/{voucher_id}",
+    "auth": "org",
+    "permission": "accounts.vouchers:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "VoucherOut"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/v1/accounts/vouchers/{voucher_id}",
+    "auth": "org",
+    "permission": "accounts.vouchers:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": "VoucherIn",
+    "response": "VoucherOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/accounts/vouchers/{voucher_id}/cancel",
+    "auth": "org",
+    "permission": "accounts.vouchers:FULL",
+    "admin_roles": null,
+    "status": 200,
+    "request": "CancelIn",
+    "response": "VoucherOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/vouchers/{voucher_id}/edit-log",
+    "auth": "org",
+    "permission": "accounts.vouchers:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "AuditLogOut[]"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/accounts/vouchers/{voucher_id}/attachments",
+    "auth": "org",
+    "permission": "accounts.vouchers:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": "AttachDocumentIn",
+    "response": "VoucherOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/vouchers/{voucher_id}/print",
+    "auth": "org",
+    "permission": "accounts.vouchers:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "file(application/pdf)"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/inventory/stock-summary",
+    "auth": "org",
+    "permission": "accounts.inventory_masters:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "StockSummaryRow[]"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/inventory/items/{item_id}/movements",
+    "auth": "org",
+    "permission": "accounts.inventory_masters:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "StockMovementOut[]"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/banking/accounts",
+    "auth": "org",
+    "permission": "accounts.banking:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "BankAccountOut[]"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/banking/{ledger_id}/reconciliation",
+    "auth": "org",
+    "permission": "accounts.banking:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "ReconciliationOut"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/accounts/banking/entries/{entry_id}/reconcile",
+    "auth": "org",
+    "permission": "accounts.banking:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": "ReconcileIn",
+    "response": "ReconEntryOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/accounts/banking/{ledger_id}/statements/import",
+    "auth": "org",
+    "permission": "accounts.banking:WRITE",
+    "admin_roles": null,
+    "status": 201,
+    "request": "multipart",
+    "response": "StatementImportOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/banking/{ledger_id}/statement-lines",
+    "auth": "org",
+    "permission": "accounts.banking:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "Page<StatementLineOut>"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/accounts/banking/statement-lines/{line_id}/match",
+    "auth": "org",
+    "permission": "accounts.banking:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": "MatchIn",
+    "response": "StatementLineOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/accounts/banking/statement-lines/{line_id}/unmatch",
+    "auth": "org",
+    "permission": "accounts.banking:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "StatementLineOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/accounts/banking/statement-lines/{line_id}/ignore",
+    "auth": "org",
+    "permission": "accounts.banking:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "StatementLineOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/banking/cheque-books",
+    "auth": "org",
+    "permission": "accounts.banking:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "ChequeBookOut[]"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/accounts/banking/cheque-books",
+    "auth": "org",
+    "permission": "accounts.banking:WRITE",
+    "admin_roles": null,
+    "status": 201,
+    "request": "ChequeBookIn",
+    "response": "ChequeBookOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/banking/cheques",
+    "auth": "org",
+    "permission": "accounts.banking:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "ChequeOut[]"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/banking/cheques/{entry_id}/print",
+    "auth": "org",
+    "permission": "accounts.banking:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "file(application/pdf)"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/taxation/gst/summary",
+    "auth": "org",
+    "permission": "accounts.taxation:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "GstSummaryOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/taxation/gst/gstr1",
+    "auth": "org",
+    "permission": "accounts.taxation:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "Gstr1Out"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/taxation/gst/gstr1/export",
+    "auth": "org",
+    "permission": "accounts.taxation:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "file(application/json)"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/taxation/gst/gstr3b",
+    "auth": "org",
+    "permission": "accounts.taxation:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "Gstr3bOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/taxation/gst/gstr3b/export",
+    "auth": "org",
+    "permission": "accounts.taxation:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "file(application/json)"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/taxation/gst/validate",
+    "auth": "org",
+    "permission": "accounts.taxation:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "GstValidationIssue[]"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/accounts/taxation/gst/gstr2b/import",
+    "auth": "org",
+    "permission": "accounts.taxation:WRITE",
+    "admin_roles": null,
+    "status": 201,
+    "request": "multipart",
+    "response": "Gstr2bImportOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/taxation/gst/gstr2b/reconciliation",
+    "auth": "org",
+    "permission": "accounts.taxation:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "Gstr2bReconOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/taxation/einvoice/{voucher_id}",
+    "auth": "org",
+    "permission": "accounts.taxation:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "EinvoiceOut[]"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/accounts/taxation/einvoice/{voucher_id}/generate",
+    "auth": "org",
+    "permission": "accounts.taxation:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "EinvoiceOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/accounts/taxation/einvoice/{voucher_id}/cancel",
+    "auth": "org",
+    "permission": "accounts.taxation:FULL",
+    "admin_roles": null,
+    "status": 200,
+    "request": "EinvoiceCancelIn",
+    "response": "EinvoiceOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/accounts/taxation/ewaybill/{voucher_id}/generate",
+    "auth": "org",
+    "permission": "accounts.taxation:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": "EwayBillIn",
+    "response": "EinvoiceOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/taxation/tds/sections",
+    "auth": "org",
+    "permission": "accounts.taxation:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "TdsSectionOut[]"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/accounts/taxation/tds/compute",
+    "auth": "org",
+    "permission": "accounts.taxation:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": "TdsComputeIn",
+    "response": "TdsComputeOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/taxation/tds/summary",
+    "auth": "org",
+    "permission": "accounts.taxation:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "TdsSummaryRow[]"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/taxation/tds/challan",
+    "auth": "org",
+    "permission": "accounts.taxation:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "TdsChallanOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/taxation/tds/returns/{form}",
+    "auth": "org",
+    "permission": "accounts.taxation:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "file(text/plain)"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/dashboard",
+    "auth": "org",
+    "permission": "accounts.dashboard:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "AccountsDashboardOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/reports/trial-balance",
+    "auth": "org",
+    "permission": "accounts.reports:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "TrialBalanceOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/reports/profit-loss",
+    "auth": "org",
+    "permission": "accounts.reports:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "ProfitLossOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/reports/balance-sheet",
+    "auth": "org",
+    "permission": "accounts.reports:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "BalanceSheetOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/reports/cash-flow",
+    "auth": "org",
+    "permission": "accounts.reports:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "CashFlowOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/reports/ratios",
+    "auth": "org",
+    "permission": "accounts.reports:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "RatioOut[]"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/reports/ageing",
+    "auth": "org",
+    "permission": "accounts.reports:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "AgeingOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/reports/day-book",
+    "auth": "org",
+    "permission": "accounts.reports:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "Page<VoucherSummary>"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/reports/batch-costing",
+    "auth": "org",
+    "permission": "accounts.reports:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "BatchCostRow[]"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/reports/{report}/export",
+    "auth": "org",
+    "permission": "accounts.reports:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "file(text/csv,application/pdf)"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/utilities/exceptions",
+    "auth": "org",
+    "permission": "accounts.reports:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "ExceptionOut[]"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/utilities/tally-export",
+    "auth": "org",
+    "permission": "accounts.reports:FULL",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "file(application/xml)"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/payroll/employees",
+    "auth": "org",
+    "permission": "accounts.payroll_employees:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "Page<EmployeeOut>"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/accounts/payroll/employees",
+    "auth": "org",
+    "permission": "accounts.payroll_employees:WRITE",
+    "admin_roles": null,
+    "status": 201,
+    "request": "EmployeeIn",
+    "response": "EmployeeOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/payroll/employees/{employee_id}",
+    "auth": "org",
+    "permission": "accounts.payroll_employees:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "EmployeeOut"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/accounts/payroll/employees/{employee_id}",
+    "auth": "org",
+    "permission": "accounts.payroll_employees:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": "EmployeeIn",
+    "response": "EmployeeOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/accounts/payroll/employees/{employee_id}/exit",
+    "auth": "org",
+    "permission": "accounts.payroll_employees:FULL",
+    "admin_roles": null,
+    "status": 200,
+    "request": "EmployeeExitIn",
+    "response": "EmployeeOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/payroll/settings",
+    "auth": "org",
+    "permission": "accounts.payroll_runs:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "PayrollSettingsOut"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/v1/accounts/payroll/settings",
+    "auth": "org",
+    "permission": "accounts.payroll_runs:FULL",
+    "admin_roles": null,
+    "status": 200,
+    "request": "PayrollSettingsIn",
+    "response": "PayrollSettingsOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/payroll/attendance",
+    "auth": "org",
+    "permission": "accounts.payroll_runs:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "AttendanceOut"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/v1/accounts/payroll/attendance",
+    "auth": "org",
+    "permission": "accounts.payroll_runs:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": "AttendanceIn",
+    "response": "AttendanceOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/accounts/payroll/attendance/pull-operations",
+    "auth": "org",
+    "permission": "accounts.payroll_runs:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "AttendanceOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/payroll/runs",
+    "auth": "org",
+    "permission": "accounts.payroll_runs:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "PayrollRunSummary[]"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/accounts/payroll/runs",
+    "auth": "org",
+    "permission": "accounts.payroll_runs:WRITE",
+    "admin_roles": null,
+    "status": 201,
+    "request": "PayrollRunCreateIn",
+    "response": "PayrollRunOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/payroll/runs/{run_id}",
+    "auth": "org",
+    "permission": "accounts.payroll_runs:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "PayrollRunOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/accounts/payroll/runs/{run_id}/recompute",
+    "auth": "org",
+    "permission": "accounts.payroll_runs:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "PayrollRunOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/accounts/payroll/runs/{run_id}/lock",
+    "auth": "org",
+    "permission": "accounts.payroll_runs:FULL",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "PayrollRunOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/accounts/payroll/runs/{run_id}/mark-paid",
+    "auth": "org",
+    "permission": "accounts.payroll_runs:FULL",
+    "admin_roles": null,
+    "status": 200,
+    "request": "MarkPaidIn",
+    "response": "PayrollRunOut"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/accounts/payroll/runs/{run_id}",
+    "auth": "org",
+    "permission": "accounts.payroll_runs:FULL",
+    "admin_roles": null,
+    "status": 204,
+    "request": null,
+    "response": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/payroll/runs/{run_id}/bank-file",
+    "auth": "org",
+    "permission": "accounts.payroll_runs:FULL",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "file(text/csv)"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/payroll/runs/{run_id}/payslips/{line_id}",
+    "auth": "org",
+    "permission": "accounts.payroll_runs:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "file(application/pdf)"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/accounts/payroll/runs/{run_id}/statutory/{kind}",
+    "auth": "org",
+    "permission": "accounts.payroll_runs:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "file(text/plain,text/csv)"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/operations/dashboard",
+    "auth": "org",
+    "permission": "operations.dashboard:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "OpsDashboardOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/operations/items",
+    "auth": "org",
+    "permission": "operations.items:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "Page<OpsItemOut>"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/operations/items",
+    "auth": "org",
+    "permission": "operations.items:WRITE",
+    "admin_roles": null,
+    "status": 201,
+    "request": "StockItemIn",
+    "response": "OpsItemOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/operations/items/{item_id}",
+    "auth": "org",
+    "permission": "operations.items:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "OpsItemOut"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/operations/items/{item_id}",
+    "auth": "org",
+    "permission": "operations.items:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": "StockItemIn",
+    "response": "OpsItemOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/operations/items/{item_id}/runs",
+    "auth": "org",
+    "permission": "operations.items:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "RunSummary[]"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/operations/workflow-library",
+    "auth": "org",
+    "permission": "operations.workflows:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "LibraryTemplateOut[]"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/operations/workflows",
+    "auth": "org",
+    "permission": "operations.workflows:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "WorkflowSummary[]"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/operations/workflows",
+    "auth": "org",
+    "permission": "operations.workflows:WRITE",
+    "admin_roles": null,
+    "status": 201,
+    "request": "WorkflowIn",
+    "response": "WorkflowOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/operations/workflows/{workflow_id}",
+    "auth": "org",
+    "permission": "operations.workflows:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "WorkflowOut"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/v1/operations/workflows/{workflow_id}",
+    "auth": "org",
+    "permission": "operations.workflows:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": "WorkflowUpdateIn",
+    "response": "WorkflowOut"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/operations/workflows/{workflow_id}",
+    "auth": "org",
+    "permission": "operations.workflows:FULL",
+    "admin_roles": null,
+    "status": 204,
+    "request": null,
+    "response": null
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/operations/workflows/{workflow_id}/validate",
+    "auth": "org",
+    "permission": "operations.workflows:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "WorkflowValidationOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/operations/workflows/{workflow_id}/publish",
+    "auth": "org",
+    "permission": "operations.workflows:FULL",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "WorkflowOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/operations/workflows/{workflow_id}/new-version",
+    "auth": "org",
+    "permission": "operations.workflows:WRITE",
+    "admin_roles": null,
+    "status": 201,
+    "request": null,
+    "response": "WorkflowOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/operations/workflows/{workflow_id}/versions",
+    "auth": "org",
+    "permission": "operations.workflows:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "WorkflowSummary[]"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/operations/runs",
+    "auth": "org",
+    "permission": "operations.runs_execution:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "Page<RunSummary>"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/operations/runs",
+    "auth": "org",
+    "permission": "operations.runs_execution:WRITE",
+    "admin_roles": null,
+    "status": 201,
+    "request": "RunCreateIn",
+    "response": "RunOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/operations/runs/{run_id}",
+    "auth": "org",
+    "permission": "operations.runs_execution:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "RunOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/operations/runs/{run_id}/start",
+    "auth": "org",
+    "permission": "operations.runs_execution:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "RunOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/operations/runs/{run_id}/hold",
+    "auth": "org",
+    "permission": "operations.runs_execution:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": "ReasonIn",
+    "response": "RunOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/operations/runs/{run_id}/resume",
+    "auth": "org",
+    "permission": "operations.runs_execution:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "RunOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/operations/runs/{run_id}/cancel",
+    "auth": "org",
+    "permission": "operations.runs_execution:FULL",
+    "admin_roles": null,
+    "status": 200,
+    "request": "ReasonIn",
+    "response": "RunOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/operations/runs/{run_id}/complete",
+    "auth": "org",
+    "permission": "operations.runs_execution:FULL",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "RunOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/operations/runs/{run_id}/steps/{step_id}/execute",
+    "auth": "org",
+    "permission": "operations.runs_execution:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": "StepExecuteIn",
+    "response": "StepExecuteOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/operations/runs/{run_id}/steps/{step_id}/skip",
+    "auth": "org",
+    "permission": "operations.runs_execution:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": "ReasonIn",
+    "response": "StepExecuteOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/operations/runs/{run_id}/steps/{step_id}/succeed",
+    "auth": "org",
+    "permission": "operations.runs_execution:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": "OptionalReasonIn",
+    "response": "StepExecuteOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/operations/runs/{run_id}/steps/{step_id}/signoff",
+    "auth": "org",
+    "permission": "operations.qc_signoff:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "StepOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/operations/runs/{run_id}/steps/{step_id}/reopen",
+    "auth": "org",
+    "permission": "operations.qc_signoff:FULL",
+    "admin_roles": null,
+    "status": 200,
+    "request": "ReasonIn",
+    "response": "StepOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/operations/runs/{run_id}/money-flow",
+    "auth": "org",
+    "permission": "operations.runs_accounting:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "MoneyFlowOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/operations/runs/{run_id}/postings",
+    "auth": "org",
+    "permission": "operations.runs_accounting:WRITE",
+    "admin_roles": null,
+    "status": 201,
+    "request": "RunPostingIn",
+    "response": "RunPostingOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/operations/runs/{run_id}/linked-vouchers",
+    "auth": "org",
+    "permission": "operations.runs_accounting:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": "LinkVoucherIn",
+    "response": "MoneyFlowOut"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/operations/runs/{run_id}/linked-vouchers/{voucher_id}",
+    "auth": "org",
+    "permission": "operations.runs_accounting:WRITE",
+    "admin_roles": null,
+    "status": 204,
+    "request": null,
+    "response": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/operations/runs/{run_id}/dossier",
+    "auth": "org",
+    "permission": "operations.runs_execution:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "file(application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document)"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/operations/ncr",
+    "auth": "org",
+    "permission": "operations.iso_compliance:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "Page<NcrOut>"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/operations/ncr",
+    "auth": "org",
+    "permission": "operations.iso_compliance:WRITE",
+    "admin_roles": null,
+    "status": 201,
+    "request": "NcrIn",
+    "response": "NcrOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/operations/ncr/{ncr_id}",
+    "auth": "org",
+    "permission": "operations.iso_compliance:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "NcrOut"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/operations/ncr/{ncr_id}",
+    "auth": "org",
+    "permission": "operations.iso_compliance:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": "NcrUpdateIn",
+    "response": "NcrOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/operations/ncr/{ncr_id}/close",
+    "auth": "org",
+    "permission": "operations.iso_compliance:FULL",
+    "admin_roles": null,
+    "status": 200,
+    "request": "NcrCloseIn",
+    "response": "NcrOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/operations/instruments",
+    "auth": "org",
+    "permission": "operations.iso_compliance:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "InstrumentOut[]"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/operations/instruments",
+    "auth": "org",
+    "permission": "operations.iso_compliance:WRITE",
+    "admin_roles": null,
+    "status": 201,
+    "request": "InstrumentIn",
+    "response": "InstrumentOut"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/operations/instruments/{instrument_id}",
+    "auth": "org",
+    "permission": "operations.iso_compliance:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": "InstrumentIn",
+    "response": "InstrumentOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/operations/instruments/{instrument_id}/calibrate",
+    "auth": "org",
+    "permission": "operations.iso_compliance:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": "CalibrateIn",
+    "response": "InstrumentOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/operations/iso/checklist",
+    "auth": "org",
+    "permission": "operations.iso_compliance:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "ChecklistItemOut[]"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/operations/iso/checklist/{item_id}",
+    "auth": "org",
+    "permission": "operations.iso_compliance:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": "ChecklistUpdateIn",
+    "response": "ChecklistItemOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/operations/iso/readiness",
+    "auth": "org",
+    "permission": "operations.iso_compliance:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "ReadinessOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/operations/iso/auditor-invites",
+    "auth": "org",
+    "permission": "operations.iso_compliance:FULL",
+    "admin_roles": null,
+    "status": 201,
+    "request": "AuditorInviteIn",
+    "response": "InvitationOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/documents/folders",
+    "auth": "org",
+    "permission": "documents.explorer:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "FolderOut[]"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/documents/folders",
+    "auth": "org",
+    "permission": "documents.capture_upload:WRITE",
+    "admin_roles": null,
+    "status": 201,
+    "request": "FolderIn",
+    "response": "FolderOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/documents/folders/{folder_id}",
+    "auth": "org",
+    "permission": "documents.explorer:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "FolderOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/documents/folders/{folder_id}/path",
+    "auth": "org",
+    "permission": "documents.explorer:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "FolderOut[]"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/documents/folders/{folder_id}",
+    "auth": "org",
+    "permission": "documents.capture_upload:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": "FolderUpdateIn",
+    "response": "FolderOut"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/documents/folders/{folder_id}",
+    "auth": "org",
+    "permission": "documents.explorer:FULL",
+    "admin_roles": null,
+    "status": 204,
+    "request": null,
+    "response": null
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/documents/folders/ensure-month",
+    "auth": "org",
+    "permission": "documents.templates:FULL",
+    "admin_roles": null,
+    "status": 200,
+    "request": "EnsureMonthIn",
+    "response": "FolderOut[]"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/documents",
+    "auth": "org",
+    "permission": "documents.explorer:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "Page<DocumentSummary>"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/documents/search",
+    "auth": "org",
+    "permission": "documents.explorer:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "SearchHit[]"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/documents/upload-url",
+    "auth": "org",
+    "permission": "documents.capture_upload:WRITE",
+    "admin_roles": null,
+    "status": 201,
+    "request": "DocUploadIn",
+    "response": "DocUploadOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/documents/{document_id}/complete-upload",
+    "auth": "org",
+    "permission": "documents.capture_upload:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": "CompleteUploadIn",
+    "response": "DocumentOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/documents",
+    "auth": "org",
+    "permission": "documents.editor:WRITE",
+    "admin_roles": null,
+    "status": 201,
+    "request": "DocCreateIn",
+    "response": "DocumentOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/documents/{document_id}",
+    "auth": "org",
+    "permission": "documents.explorer:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "DocumentOut"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/documents/{document_id}",
+    "auth": "org",
+    "permission": "documents.editor:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": "DocUpdateIn",
+    "response": "DocumentOut"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/documents/{document_id}",
+    "auth": "org",
+    "permission": "documents.explorer:FULL",
+    "admin_roles": null,
+    "status": 204,
+    "request": null,
+    "response": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/documents/{document_id}/download-url",
+    "auth": "org",
+    "permission": "documents.explorer:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "SignedUrlOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/documents/{document_id}/export",
+    "auth": "org",
+    "permission": "documents.explorer:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "file(application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document)"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/documents/{document_id}/transition",
+    "auth": "org",
+    "permission": "documents.editor:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": "TransitionIn",
+    "response": "DocumentOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/documents/{document_id}/review",
+    "auth": "org",
+    "permission": "documents.iso_approval:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": "ReviewIn",
+    "response": "DocumentOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/documents/{document_id}/revise",
+    "auth": "org",
+    "permission": "documents.editor:WRITE",
+    "admin_roles": null,
+    "status": 201,
+    "request": "ReviseIn",
+    "response": "ReviseOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/documents/{document_id}/versions",
+    "auth": "org",
+    "permission": "documents.explorer:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "DocumentSummary[]"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/documents/{document_id}/audit",
+    "auth": "org",
+    "permission": "documents.explorer:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "AuditLogOut[]"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/documents/templates",
+    "auth": "org",
+    "permission": "documents.templates:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "TemplateOut[]"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/documents/templates",
+    "auth": "org",
+    "permission": "documents.templates:WRITE",
+    "admin_roles": null,
+    "status": 201,
+    "request": "TemplateIn",
+    "response": "TemplateOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/documents/templates/{template_id}",
+    "auth": "org",
+    "permission": "documents.templates:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "TemplateOut"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/documents/templates/{template_id}",
+    "auth": "org",
+    "permission": "documents.templates:WRITE",
+    "admin_roles": null,
+    "status": 200,
+    "request": "TemplateUpdateIn",
+    "response": "TemplateOut"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/v1/documents/templates/{template_id}",
+    "auth": "org",
+    "permission": "documents.templates:FULL",
+    "admin_roles": null,
+    "status": 204,
+    "request": null,
+    "response": null
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/documents/templates/{template_id}/clone",
+    "auth": "org",
+    "permission": "documents.templates:WRITE",
+    "admin_roles": null,
+    "status": 201,
+    "request": null,
+    "response": "TemplateOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/documents/templates/{template_id}/preview",
+    "auth": "org",
+    "permission": "documents.templates:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": "PreviewIn",
+    "response": "PreviewOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/documents/template-tokens",
+    "auth": "org",
+    "permission": "documents.templates:READ",
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "TemplateTokenOut[]"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/v1/storage/local/{token}",
+    "auth": "public",
+    "permission": null,
+    "admin_roles": null,
+    "status": 204,
+    "request": null,
+    "response": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/storage/local/{token}",
+    "auth": "public",
+    "permission": null,
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "file(application/octet-stream)"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/admin/auth/login",
+    "auth": "public",
+    "permission": null,
+    "admin_roles": null,
+    "status": 200,
+    "request": "AdminLoginIn",
+    "response": "AdminLoginOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/admin/auth/mfa/verify",
+    "auth": "public",
+    "permission": null,
+    "admin_roles": null,
+    "status": 200,
+    "request": "AdminMfaVerifyIn",
+    "response": "AdminLoginSuccessOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/admin/auth/refresh",
+    "auth": "public",
+    "permission": null,
+    "admin_roles": null,
+    "status": 200,
+    "request": null,
+    "response": "AdminLoginSuccessOut"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/admin/auth/logout",
+    "auth": "public",
+    "permission": null,
+    "admin_roles": null,
+    "status": 204,
+    "request": null,
+    "response": null
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/admin/me",
+    "auth": "admin",
+    "permission": null,
+    "admin_roles": [
+      "ANY"
+    ],
+    "status": 200,
+    "request": null,
+    "response": "AdminMeOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/admin/dashboard",
+    "auth": "admin",
+    "permission": null,
+    "admin_roles": [
+      "ANY"
+    ],
+    "status": 200,
+    "request": null,
+    "response": "AdminDashboardOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/admin/organizations",
+    "auth": "admin",
+    "permission": null,
+    "admin_roles": [
+      "ANY"
+    ],
+    "status": 200,
+    "request": null,
+    "response": "Page<AdminOrgSummary>"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/admin/organizations/{org_id}",
+    "auth": "admin",
+    "permission": null,
+    "admin_roles": [
+      "ANY"
+    ],
+    "status": 200,
+    "request": null,
+    "response": "AdminOrgDetail"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/admin/organizations/{org_id}/lifecycle",
+    "auth": "admin",
+    "permission": null,
+    "admin_roles": [
+      "SUPERADMIN",
+      "SUPPORT_ADMIN"
+    ],
+    "status": 200,
+    "request": "LifecycleIn",
+    "response": "AdminOrgDetail"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/admin/organizations/{org_id}/plan",
+    "auth": "admin",
+    "permission": null,
+    "admin_roles": [
+      "SUPERADMIN",
+      "BILLING_ADMIN"
+    ],
+    "status": 200,
+    "request": "PlanChangeIn",
+    "response": "AdminOrgDetail"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/admin/organizations/{org_id}/transfer-owner",
+    "auth": "admin",
+    "permission": null,
+    "admin_roles": [
+      "SUPERADMIN"
+    ],
+    "status": 200,
+    "request": "TransferOwnerIn",
+    "response": "AdminOrgDetail"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/admin/organizations/{org_id}/impersonate",
+    "auth": "admin",
+    "permission": null,
+    "admin_roles": [
+      "SUPERADMIN",
+      "SUPPORT_ADMIN"
+    ],
+    "status": 201,
+    "request": "ImpersonateIn",
+    "response": "ImpersonateOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/admin/users",
+    "auth": "admin",
+    "permission": null,
+    "admin_roles": [
+      "SUPERADMIN",
+      "SUPPORT_ADMIN"
+    ],
+    "status": 200,
+    "request": null,
+    "response": "Page<AdminUserSummary>"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/admin/users/{user_id}",
+    "auth": "admin",
+    "permission": null,
+    "admin_roles": [
+      "SUPERADMIN",
+      "SUPPORT_ADMIN"
+    ],
+    "status": 200,
+    "request": null,
+    "response": "AdminUserDetail"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/admin/users/{user_id}/actions",
+    "auth": "admin",
+    "permission": null,
+    "admin_roles": [
+      "SUPERADMIN",
+      "SUPPORT_ADMIN"
+    ],
+    "status": 200,
+    "request": "UserActionIn",
+    "response": "AdminUserDetail"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/admin/configs",
+    "auth": "admin",
+    "permission": null,
+    "admin_roles": [
+      "ANY"
+    ],
+    "status": 200,
+    "request": null,
+    "response": "ConfigOut[]"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/admin/configs",
+    "auth": "admin",
+    "permission": null,
+    "admin_roles": [
+      "SUPERADMIN"
+    ],
+    "status": 201,
+    "request": "ConfigIn",
+    "response": "ConfigOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/admin/configs/{config_id}",
+    "auth": "admin",
+    "permission": null,
+    "admin_roles": [
+      "ANY"
+    ],
+    "status": 200,
+    "request": null,
+    "response": "ConfigOut"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/v1/admin/configs/{config_id}",
+    "auth": "admin",
+    "permission": null,
+    "admin_roles": [
+      "SUPERADMIN"
+    ],
+    "status": 200,
+    "request": "ConfigUpdateIn",
+    "response": "ConfigOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/admin/configs/{config_id}/history",
+    "auth": "admin",
+    "permission": null,
+    "admin_roles": [
+      "ANY"
+    ],
+    "status": 200,
+    "request": null,
+    "response": "ConfigVersionOut[]"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/admin/configs/{config_id}/push",
+    "auth": "admin",
+    "permission": null,
+    "admin_roles": [
+      "SUPERADMIN"
+    ],
+    "status": 200,
+    "request": "ConfigPushIn",
+    "response": "ConfigPushOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/admin/plans",
+    "auth": "admin",
+    "permission": null,
+    "admin_roles": [
+      "ANY"
+    ],
+    "status": 200,
+    "request": null,
+    "response": "PlanOut[]"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/admin/plans",
+    "auth": "admin",
+    "permission": null,
+    "admin_roles": [
+      "SUPERADMIN",
+      "BILLING_ADMIN"
+    ],
+    "status": 201,
+    "request": "PlanIn",
+    "response": "PlanOut"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/admin/plans/{plan_id}",
+    "auth": "admin",
+    "permission": null,
+    "admin_roles": [
+      "SUPERADMIN",
+      "BILLING_ADMIN"
+    ],
+    "status": 200,
+    "request": "PlanUpdateIn",
+    "response": "PlanOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/admin/billing/invoices",
+    "auth": "admin",
+    "permission": null,
+    "admin_roles": [
+      "SUPERADMIN",
+      "BILLING_ADMIN"
+    ],
+    "status": 200,
+    "request": null,
+    "response": "Page<SubscriptionInvoiceOut>"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/admin/billing/invoices",
+    "auth": "admin",
+    "permission": null,
+    "admin_roles": [
+      "SUPERADMIN",
+      "BILLING_ADMIN"
+    ],
+    "status": 201,
+    "request": "SubscriptionInvoiceIn",
+    "response": "SubscriptionInvoiceOut"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/admin/billing/invoices/{invoice_id}",
+    "auth": "admin",
+    "permission": null,
+    "admin_roles": [
+      "SUPERADMIN",
+      "BILLING_ADMIN"
+    ],
+    "status": 200,
+    "request": "InvoiceStatusIn",
+    "response": "SubscriptionInvoiceOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/admin/audit-logs",
+    "auth": "admin",
+    "permission": null,
+    "admin_roles": [
+      "ANY"
+    ],
+    "status": 200,
+    "request": null,
+    "response": "Page<PlatformAuditOut>"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/admin/admins",
+    "auth": "admin",
+    "permission": null,
+    "admin_roles": [
+      "SUPERADMIN"
+    ],
+    "status": 200,
+    "request": null,
+    "response": "AdminAccountOut[]"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v1/admin/admins",
+    "auth": "admin",
+    "permission": null,
+    "admin_roles": [
+      "SUPERADMIN"
+    ],
+    "status": 201,
+    "request": "AdminAccountIn",
+    "response": "AdminAccountCreatedOut"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/v1/admin/admins/{admin_id}",
+    "auth": "admin",
+    "permission": null,
+    "admin_roles": [
+      "SUPERADMIN"
+    ],
+    "status": 200,
+    "request": "AdminAccountUpdateIn",
+    "response": "AdminAccountOut"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/admin/meta/template-tokens",
+    "auth": "admin",
+    "permission": null,
+    "admin_roles": [
+      "ANY"
+    ],
+    "status": 200,
+    "request": null,
+    "response": "TemplateTokenOut[]"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/admin/organizations/{org_id}/members",
+    "auth": "admin",
+    "permission": null,
+    "admin_roles": [
+      "SUPERADMIN",
+      "SUPPORT_ADMIN"
+    ],
+    "status": 200,
+    "request": null,
+    "response": "AdminOrgMemberOut[]"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v1/admin/system/health",
+    "auth": "admin",
+    "permission": null,
+    "admin_roles": [
+      "ANY"
+    ],
+    "status": 200,
+    "request": null,
+    "response": "SystemHealthOut"
+  }
+]

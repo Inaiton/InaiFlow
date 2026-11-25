@@ -1,0 +1,636 @@
+# =====================================================================================
+# InaiFlow API CONTRACT v1  — single source of truth (generate: python docs/api/gen_openapi.py)
+# -------------------------------------------------------------------------------------
+# Grammar
+#   enum Name = A | B | C
+#   model Name [extends Base] { field: type   field?: type (optional)   field: type | null (nullable) }
+#   types: str int bool uuid date datetime decimal email json any  Name  Name[]  Page<Name>  map<type>
+#          decimal = string "^-?\d+(\.\d{1,4})?$"  ;  month = string "YYYY-MM"
+#   endpoint:  METHOD /path | auth | query | body | response
+#     auth  : public | user | org <perm.key>:<LEVEL> | org member | admin <ROLE,ROLE|ANY> | cron
+#             (`org …` = requires X-Organization-ID; `user` = authenticated user, no org header)
+#     query : space separated `name?:type` (`?` = optional) or `-`
+#     body  : Model | multipart | -
+#     resp  : 204 | <status> Model | <status> Model[] | <status> Page<Model> | 200 file(mime[,mime])
+#   Path params are uuid unless declared `{name:type}`. Base path /api/v1 is implicit.
+#   All errors: Error model with ErrorCode. All list endpoints: limit (1..200, default 50), offset (default 0).
+# =====================================================================================
+
+# ------------------------------------------------------------------ common
+enum Level = NONE | READ | WRITE | FULL
+enum ErrorCode = VALIDATION_ERROR | UNAUTHENTICATED | TOKEN_EXPIRED | INVALID_CREDENTIALS | EMAIL_NOT_VERIFIED | MFA_REQUIRED | MFA_INVALID | MFA_SETUP_REQUIRED | ACCOUNT_SUSPENDED | RATE_LIMITED | FORBIDDEN | PERMISSION_DENIED | ORG_SUSPENDED | MEMBERSHIP_EXPIRED | NOT_FOUND | CONFLICT | ALREADY_EXISTS | INVALID_STATE | DOUBLE_ENTRY_IMBALANCE | PERIOD_LOCKED | LEDGER_IN_USE | SYSTEM_RECORD | STEP_LOCKED | STEP_NOT_ACTIVE | QTY_MISMATCH | INSTRUMENT_EXPIRED | WORKFLOW_INVALID | WORKFLOW_PUBLISHED | FOLDER_LOCKED | FOLDER_NOT_EMPTY | DOCUMENT_LOCKED | SEGREGATION_OF_DUTIES | UPLOAD_INCOMPLETE | FILE_TOO_LARGE | UNSUPPORTED_MEDIA | PAYROLL_NOT_READY | IP_NOT_ALLOWED | IDEMPOTENCY_CONFLICT | QUOTA_EXCEEDED | INTERNAL_ERROR
+
+model ErrorBody { code: ErrorCode  message: str  details: json | null }
+model Error { error: ErrorBody }
+model OkOut { ok: bool }
+model UploadTicket { upload_url: str  method: str  headers: map<str>  storage_key: str  expires_at: datetime }
+model UploadRequest { file_name: str  content_type: str  size_bytes: int }
+model SignedUrlOut { url: str  expires_at: datetime }
+model AuditLogOut { id: uuid  module: str  action: str  entity_type: str  entity_id: uuid  actor_type: str  user_id: uuid | null  user_name: str | null  role_code: str  before_diff: json | null  after_diff: json | null  reason: str | null  ip_address: str | null  created_at: datetime }
+
+# ------------------------------------------------------------------ platform / meta
+model HealthOut { status: str  version: str  db: str }
+model StateOut { code: str  name: str }
+model PermissionKeyOut { key: str  label: str  description: str }
+model PermissionModuleOut { module: str  label: str  keys: PermissionKeyOut[] }
+model CronResultOut { orgs_processed: int  folders_created: int  instruments_updated: int  invitations_expired: int  memberships_expired: int }
+
+GET  /health                          | public | - | - | 200 HealthOut
+GET  /meta/states                     | public | - | - | 200 StateOut[]
+GET  /meta/permission-keys            | public | - | - | 200 PermissionModuleOut[]
+GET  /internal/cron/daily             | cron   | - | - | 200 CronResultOut
+
+# ------------------------------------------------------------------ auth (user)
+enum LoginStatus = OK | MFA_REQUIRED
+model SignupIn { full_name: str  email: email  password: str }
+model SignupOut { email: email  verification_required: bool }
+model VerifyEmailIn { email: email  code: str }
+model EmailIn { email: email }
+model LoginIn { email: email  password: str  remember?: bool }
+model TokenOut { access_token: str  token_type: str  expires_in: int }
+model LoginOut { status: LoginStatus  token: TokenOut | null  mfa_token: str | null  user: MeOut | null }
+model MfaVerifyIn { mfa_token: str  code: str }
+model LoginSuccessOut { token: TokenOut  user: MeOut }
+model PasswordResetIn { email: email  code: str  new_password: str }
+
+POST /auth/signup                     | public | - | SignupIn | 201 SignupOut
+POST /auth/verify-email               | public | - | VerifyEmailIn | 204
+POST /auth/resend-verification        | public | - | EmailIn | 204
+POST /auth/login                      | public | - | LoginIn | 200 LoginOut
+POST /auth/mfa/verify                 | public | - | MfaVerifyIn | 200 LoginSuccessOut
+POST /auth/refresh                    | public | - | - | 200 LoginSuccessOut
+POST /auth/logout                     | public | - | - | 204
+POST /auth/password/forgot            | public | - | EmailIn | 204
+POST /auth/password/reset             | public | - | PasswordResetIn | 204
+GET  /auth/oauth/google/start         | public | redirect_to?:str | - | 302
+GET  /auth/oauth/google/callback      | public | code:str state:str | - | 302
+
+# ------------------------------------------------------------------ me (personal space)
+enum FilePurpose = AVATAR | SIGNATURE
+model MeOut { id: uuid  email: email  full_name: str  mobile: str | null  professional_reg_no: str | null  avatar_url: str | null  signature_url: str | null  is_email_verified: bool  mfa_enabled: bool  created_at: datetime }
+model MeUpdateIn { full_name?: str  mobile?: str | null  professional_reg_no?: str | null  avatar_storage_key?: str | null  signature_storage_key?: str | null }
+model MeFileUploadIn { purpose: FilePurpose  content_type: str  size_bytes: int }
+model PasswordChangeIn { current_password: str  new_password: str }
+model MfaSetupOut { secret: str  otpauth_uri: str }
+model MfaCodeIn { code: str }
+model MfaDisableIn { password: str  code: str }
+model RecoveryCodesOut { recovery_codes: str[] }
+model SessionOut { id: uuid  user_agent: str | null  ip: str | null  created_at: datetime  last_used_at: datetime  expires_at: datetime  is_current: bool }
+model MyOrgOut { org_id: uuid  legal_name: str  mailing_name: str | null  workspace_slug: str  public_join_code: str  logo_url: str | null  role_id: uuid  role_code: str  role_name: str  is_external: bool  membership_status: str  access_expires_at: datetime | null  org_status: str }
+model InvitationForMeOut { id: uuid  org_id: uuid  org_name: str  role_name: str  invited_by_name: str | null  access_expires_at: datetime | null  expires_at: datetime  created_at: datetime }
+model JoinRequestIn { join_code: str  message?: str | null }
+model MyJoinRequestOut { id: uuid  org_name: str  public_join_code: str  status: str  message: str | null  created_at: datetime }
+model OrgCreateIn { legal_name: str  mailing_name?: str | null  workspace_slug: str  address_line1: str  address_line2?: str | null  city: str  state_code: str  pincode: str  country?: str  fy_begins_from: date  books_beginning_from: date  contact_email: email  contact_phone: str  gst_reg_type: str  gstin?: str | null  pan?: str | null  tan?: str | null  cin_or_udyam?: str | null  epf_code?: str | null  esic_code?: str | null  industry_type: str  iso_standard?: str | null }
+
+GET    /me                            | user | - | - | 200 MeOut
+PATCH  /me                            | user | - | MeUpdateIn | 200 MeOut
+POST   /me/files/upload-url           | user | - | MeFileUploadIn | 200 UploadTicket
+POST   /me/password                   | user | - | PasswordChangeIn | 204
+POST   /me/mfa/setup                  | user | - | - | 200 MfaSetupOut
+POST   /me/mfa/enable                 | user | - | MfaCodeIn | 200 RecoveryCodesOut
+POST   /me/mfa/disable                | user | - | MfaDisableIn | 204
+POST   /me/mfa/recovery-codes         | user | - | MfaCodeIn | 200 RecoveryCodesOut
+GET    /me/sessions                   | user | - | - | 200 SessionOut[]
+DELETE /me/sessions/{session_id}      | user | - | - | 204
+GET    /me/organizations              | user | - | - | 200 MyOrgOut[]
+GET    /me/invitations                | user | - | - | 200 InvitationForMeOut[]
+POST   /me/invitations/{invitation_id}/accept  | user | - | - | 200 MyOrgOut
+POST   /me/invitations/{invitation_id}/decline | user | - | - | 204
+GET    /me/join-requests              | user | - | - | 200 MyJoinRequestOut[]
+POST   /me/join-requests              | user | - | JoinRequestIn | 201 MyJoinRequestOut
+DELETE /me/join-requests/{request_id} | user | - | - | 204
+POST   /organizations                 | user | - | OrgCreateIn | 201 MyOrgOut
+GET    /organizations/check-slug      | user | slug:str | - | 200 OkOut
+
+# ------------------------------------------------------------------ organization (tenant)
+model FyOut { label: str  start: date  end: date }
+model ImpersonationInfo { admin_name: str  mode: str  expires_at: datetime }
+model OrgContextOut { org_id: uuid  legal_name: str  mailing_name: str | null  workspace_slug: str  logo_url: str | null  state_code: str  base_currency_code: str  base_currency_symbol: str  role_code: str  role_name: str  is_external: bool  is_owner: bool  permissions: map<Level>  enabled_modules: map<bool>  current_fy: FyOut  books_beginning_from: date  impersonation: ImpersonationInfo | null }
+model OrgOut { id: uuid  workspace_slug: str  public_join_code: str  legal_name: str  mailing_name: str | null  address_line1: str  address_line2: str | null  city: str  state_code: str  state_name: str  pincode: str  country: str  base_currency_code: str  base_currency_symbol: str  fy_begins_from: date  books_beginning_from: date  contact_email: str  contact_phone: str  gst_reg_type: str  gstin: str | null  pan: str | null  tan: str | null  cin_or_udyam: str | null  epf_code: str | null  esic_code: str | null  industry_type: str  iso_standard: str | null  logo_url: str | null  stamp_url: str | null  org_status: str  created_at: datetime }
+model OrgUpdateIn { legal_name?: str  mailing_name?: str | null  address_line1?: str  address_line2?: str | null  city?: str  state_code?: str  pincode?: str  contact_email?: email  contact_phone?: str  gst_reg_type?: str  gstin?: str | null  pan?: str | null  tan?: str | null  cin_or_udyam?: str | null  epf_code?: str | null  esic_code?: str | null  industry_type?: str  iso_standard?: str | null  logo_storage_key?: str | null  stamp_storage_key?: str | null }
+enum OrgFilePurpose = LOGO | STAMP
+model OrgFileUploadIn { purpose: OrgFilePurpose  content_type: str  size_bytes: int }
+model BranchIn { name: str  address?: str | null  state_code?: str | null  gstin?: str | null  is_head_office?: bool }
+model BranchOut { id: uuid  name: str  address: str | null  state_code: str | null  gstin: str | null  is_head_office: bool }
+model MemberOut { membership_id: uuid  user_id: uuid  full_name: str  email: str  role_id: uuid  role_code: str  role_name: str  is_external: bool  is_owner: bool  status: str  access_expires_at: datetime | null  joined_at: datetime  mfa_enabled: bool }
+model MemberUpdateIn { role_id?: uuid  access_expires_at?: datetime | null  status?: str }
+model AclGrantIn { resource_type: str  resource_id: uuid  access_level: Level }
+model InvitationIn { email: email  role_id: uuid  access_expires_at?: datetime | null  acl_grants?: AclGrantIn[] }
+model InvitationOut { id: uuid  email: str  role_id: uuid  role_name: str  status: str  access_expires_at: datetime | null  expires_at: datetime  created_by_name: str | null  created_at: datetime }
+model JoinRequestOut { id: uuid  user_id: uuid  full_name: str  email: str  is_email_verified: bool  professional_reg_no: str | null  message: str | null  status: str  created_at: datetime }
+model JoinDecisionIn { role_id: uuid  access_expires_at?: datetime | null }
+model TransferOwnershipIn { membership_id: uuid  password: str }
+model RoleOut { id: uuid  role_code: str  role_name: str  is_system_role: bool  is_external_collaborator: bool  permissions: map<Level>  member_count: int }
+model RoleIn { role_code: str  role_name: str  is_external_collaborator?: bool  permissions: map<Level> }
+model RoleUpdateIn { role_name?: str  is_external_collaborator?: bool  permissions?: map<Level> }
+model AclOut { id: uuid  subject_type: str  subject_id: uuid  subject_name: str  resource_type: str  resource_id: uuid  resource_name: str  access_level: Level  created_at: datetime }
+model AclIn { subject_type: str  subject_id: uuid  resource_type: str  resource_id: uuid  access_level: Level }
+model SecuritySettings { enforce_2fa_external: bool  enforce_2fa_all: bool  session_timeout_mins: int  voucher_approval_threshold: decimal | null  require_reviewer_for_iso_docs: bool }
+model BillingOut { plan_code: str | null  plan_name: str | null  org_status: str  trial_ends_at: datetime | null  internal_seats_used: int  internal_seats_max: int  external_seats_used: int  external_seats_max: int  storage_used_bytes: int  storage_max_gb: int  enabled_modules: map<bool> }
+
+GET    /org/context                                  | org member | - | - | 200 OrgContextOut
+GET    /organization/profile                         | org organization.profile:READ | - | - | 200 OrgOut
+PATCH  /organization/profile                         | org organization.profile:FULL | - | OrgUpdateIn | 200 OrgOut
+POST   /organization/files/upload-url                | org organization.profile:FULL | - | OrgFileUploadIn | 200 UploadTicket
+GET    /organization/branches                        | org organization.profile:READ | - | - | 200 BranchOut[]
+POST   /organization/branches                        | org organization.profile:FULL | - | BranchIn | 201 BranchOut
+PATCH  /organization/branches/{branch_id}            | org organization.profile:FULL | - | BranchIn | 200 BranchOut
+DELETE /organization/branches/{branch_id}            | org organization.profile:FULL | - | - | 204
+GET    /organization/members                         | org organization.members:READ | q?:str status?:str | - | 200 MemberOut[]
+PATCH  /organization/members/{membership_id}         | org organization.members:FULL | - | MemberUpdateIn | 200 MemberOut
+DELETE /organization/members/{membership_id}         | org organization.members:FULL | - | - | 204
+POST   /organization/transfer-ownership              | org organization.members:FULL | - | TransferOwnershipIn | 204
+GET    /organization/invitations                     | org organization.members:READ | status?:str | - | 200 InvitationOut[]
+POST   /organization/invitations                     | org organization.members:FULL | - | InvitationIn | 201 InvitationOut
+POST   /organization/invitations/{invitation_id}/resend | org organization.members:FULL | - | - | 204
+DELETE /organization/invitations/{invitation_id}     | org organization.members:FULL | - | - | 204
+GET    /organization/join-requests                   | org organization.members:READ | status?:str | - | 200 JoinRequestOut[]
+POST   /organization/join-requests/{request_id}/approve | org organization.members:FULL | - | JoinDecisionIn | 200 MemberOut
+POST   /organization/join-requests/{request_id}/reject  | org organization.members:FULL | - | - | 204
+GET    /organization/roles                           | org organization.roles_rbac:READ | - | - | 200 RoleOut[]
+POST   /organization/roles                           | org organization.roles_rbac:FULL | - | RoleIn | 201 RoleOut
+PATCH  /organization/roles/{role_id}                 | org organization.roles_rbac:FULL | - | RoleUpdateIn | 200 RoleOut
+DELETE /organization/roles/{role_id}                 | org organization.roles_rbac:FULL | - | - | 204
+GET    /organization/acl                             | org organization.roles_rbac:READ | subject_type?:str subject_id?:uuid resource_type?:str | - | 200 AclOut[]
+PUT    /organization/acl                             | org organization.roles_rbac:FULL | - | AclIn | 200 AclOut
+DELETE /organization/acl/{acl_id}                    | org organization.roles_rbac:FULL | - | - | 204
+GET    /organization/security                        | org organization.security_policies:READ | - | - | 200 SecuritySettings
+PUT    /organization/security                        | org organization.security_policies:FULL | - | SecuritySettings | 200 SecuritySettings
+GET    /organization/audit-logs                      | org organization.audit_logs:READ | module?:str action?:str entity_type?:str entity_id?:uuid user_id?:uuid date_from?:date date_to?:date limit?:int offset?:int | - | 200 Page<AuditLogOut>
+GET    /organization/billing                         | org organization.billing:READ | - | - | 200 BillingOut
+
+# ------------------------------------------------------------------ accounts: masters
+enum Nature = ASSETS | LIABILITIES | INCOME | EXPENSES
+enum DrCr = DR | CR
+model GroupOut { id: uuid  name: str  parent_group_id: uuid | null  nature: Nature  affects_gross_profit: bool  is_system_group: bool  system_code: str | null }
+model GroupIn { name: str  parent_group_id: uuid }
+model GroupUpdateIn { name?: str  parent_group_id?: uuid }
+model PartyDetails { gstin?: str | null  state_code?: str | null  pan?: str | null  msme_type?: str | null  udyam_no?: str | null  bank_account?: str | null  ifsc?: str | null  address?: str | null  email?: str | null  phone?: str | null  is_sez?: bool  is_unregistered?: bool  deductee_type?: str | null }
+model TaxConfig { tax_type: str  gst_head?: str | null  rate?: decimal | null  tds_section?: str | null }
+model InterestConfig { rate_pct: decimal  basis: str  grace_days?: int }
+model LedgerOut { id: uuid  group_id: uuid  group_name: str  nature: Nature  name: str  alias: str | null  system_code: str | null  currency_code: str  opening_balance: decimal  opening_balance_type: DrCr  maintain_bill_by_bill: bool  default_credit_days: int | null  credit_limit: decimal | null  party_details: PartyDetails | null  tax_config: TaxConfig | null  interest_config: InterestConfig | null  is_active: bool  closing_balance: decimal  closing_balance_type: DrCr  created_at: datetime }
+model LedgerIn { group_id: uuid  name: str  alias?: str | null  currency_code?: str  opening_balance?: decimal  opening_balance_type?: DrCr  maintain_bill_by_bill?: bool  default_credit_days?: int | null  credit_limit?: decimal | null  party_details?: PartyDetails | null  tax_config?: TaxConfig | null  interest_config?: InterestConfig | null  is_active?: bool }
+model LedgerStatementLine { date: date  voucher_id: uuid  voucher_number: str  voucher_type: str  particulars: str  narration: str | null  debit: decimal  credit: decimal  running_balance: decimal  running_type: DrCr }
+model LedgerStatementOut { ledger: LedgerOut  date_from: date  date_to: date  opening_balance: decimal  opening_type: DrCr  lines: LedgerStatementLine[]  total_debit: decimal  total_credit: decimal  closing_balance: decimal  closing_type: DrCr }
+model OutstandingBillOut { ref_name: str  bill_date: date  due_date: date | null  amount: decimal  pending: decimal  pending_type: DrCr  overdue_days: int }
+model CostCentreOut { id: uuid  category_name: str  name: str  parent_id: uuid | null  linked_period_run_id: uuid | null  budget_amount: decimal | null  actual_amount: decimal }
+model CostCentreIn { category_name?: str  name: str  parent_id?: uuid | null  budget_amount?: decimal | null }
+model VoucherTypeOut { id: uuid  name: str  base_type: str  is_accounting: bool  is_system: bool  shortcut: str | null  numbering_method: str  prefix: str  suffix: str  zero_padding: int  next_number: int }
+model VoucherTypeIn { name: str  base_type: str  numbering_method?: str  prefix?: str  suffix?: str  zero_padding?: int  next_number?: int }
+model VoucherTypeUpdateIn { name?: str  numbering_method?: str  prefix?: str  suffix?: str  zero_padding?: int  next_number?: int }
+model CurrencyOut { id: uuid  code: str  symbol: str  name: str  decimal_places: int  latest_rate: decimal | null  latest_rate_date: date | null }
+model CurrencyIn { code: str  symbol: str  name: str  decimal_places?: int }
+model ExchangeRateIn { rate_date: date  rate_to_base: decimal }
+model GodownOut { id: uuid  name: str  parent_godown_id: uuid | null  godown_type: str  is_system: bool }
+model GodownIn { name: str  parent_godown_id?: uuid | null  godown_type?: str }
+model StockGroupOut { id: uuid  name: str  parent_id: uuid | null }
+model StockGroupIn { name: str  parent_id?: uuid | null }
+model BomComponent { raw_item_id: uuid  qty_per_unit: decimal  scrap_pct: decimal }
+model StockItemOut { id: uuid  target_type: str  name: str  sku_code: str | null  stock_group_id: uuid | null  stock_group_name: str | null  uom_primary: str  uom_alternate: str | null  uom_conversion_factor: decimal | null  valuation_method: str  hsn_sac_code: str | null  gst_rate: decimal  opening_qty: decimal  opening_rate: decimal  reorder_level: decimal | null  diagram_url: str | null  custom_fields: json  bom_components: BomComponent[]  closing_qty: decimal  closing_value: decimal  created_at: datetime }
+model StockItemIn { target_type?: str  name: str  sku_code?: str | null  stock_group_id?: uuid | null  uom_primary?: str  uom_alternate?: str | null  uom_conversion_factor?: decimal | null  valuation_method?: str  hsn_sac_code?: str | null  gst_rate?: decimal  opening_qty?: decimal  opening_rate?: decimal  reorder_level?: decimal | null  diagram_storage_key?: str | null  custom_fields?: json  bom_components?: BomComponent[] }
+model StockItemUploadIn { content_type: str  size_bytes: int  file_name: str }
+model AccountsSettings { books_locked_until: date | null  invoice_show_logo: bool  invoice_terms: str | null  invoice_declaration: str | null  invoice_bank_details: str | null  invoice_footer: str | null  default_sales_voucher_type_id: uuid | null  default_purchase_voucher_type_id: uuid | null }
+
+GET    /accounts/groups                      | org accounts.ledgers_groups:READ  | - | - | 200 GroupOut[]
+POST   /accounts/groups                      | org accounts.ledgers_groups:WRITE | - | GroupIn | 201 GroupOut
+PATCH  /accounts/groups/{group_id}           | org accounts.ledgers_groups:WRITE | - | GroupUpdateIn | 200 GroupOut
+DELETE /accounts/groups/{group_id}           | org accounts.ledgers_groups:FULL  | - | - | 204
+GET    /accounts/ledgers                     | org accounts.ledgers_groups:READ  | q?:str group_id?:uuid nature?:Nature party_only?:bool bank_only?:bool include_inactive?:bool limit?:int offset?:int | - | 200 Page<LedgerOut>
+POST   /accounts/ledgers                     | org accounts.ledgers_groups:WRITE | - | LedgerIn | 201 LedgerOut
+GET    /accounts/ledgers/{ledger_id}         | org accounts.ledgers_groups:READ  | - | - | 200 LedgerOut
+PATCH  /accounts/ledgers/{ledger_id}         | org accounts.ledgers_groups:WRITE | - | LedgerIn | 200 LedgerOut
+DELETE /accounts/ledgers/{ledger_id}         | org accounts.ledgers_groups:FULL  | - | - | 204
+GET    /accounts/ledgers/{ledger_id}/statement | org accounts.reports:READ | date_from:date date_to:date | - | 200 LedgerStatementOut
+GET    /accounts/ledgers/{ledger_id}/bills   | org accounts.vouchers:READ | as_of?:date | - | 200 OutstandingBillOut[]
+GET    /accounts/cost-centres                | org accounts.ledgers_groups:READ  | - | - | 200 CostCentreOut[]
+POST   /accounts/cost-centres                | org accounts.ledgers_groups:WRITE | - | CostCentreIn | 201 CostCentreOut
+PATCH  /accounts/cost-centres/{cost_centre_id} | org accounts.ledgers_groups:WRITE | - | CostCentreIn | 200 CostCentreOut
+DELETE /accounts/cost-centres/{cost_centre_id} | org accounts.ledgers_groups:FULL | - | - | 204
+GET    /accounts/voucher-types               | org accounts.vouchers:READ | - | - | 200 VoucherTypeOut[]
+POST   /accounts/voucher-types               | org accounts.vouchers:FULL | - | VoucherTypeIn | 201 VoucherTypeOut
+PATCH  /accounts/voucher-types/{voucher_type_id} | org accounts.vouchers:FULL | - | VoucherTypeUpdateIn | 200 VoucherTypeOut
+GET    /accounts/currencies                  | org accounts.ledgers_groups:READ  | - | - | 200 CurrencyOut[]
+POST   /accounts/currencies                  | org accounts.ledgers_groups:WRITE | - | CurrencyIn | 201 CurrencyOut
+POST   /accounts/currencies/{currency_id}/rates | org accounts.ledgers_groups:WRITE | - | ExchangeRateIn | 200 CurrencyOut
+GET    /accounts/godowns                     | org accounts.inventory_masters:READ  | - | - | 200 GodownOut[]
+POST   /accounts/godowns                     | org accounts.inventory_masters:WRITE | - | GodownIn | 201 GodownOut
+PATCH  /accounts/godowns/{godown_id}         | org accounts.inventory_masters:WRITE | - | GodownIn | 200 GodownOut
+DELETE /accounts/godowns/{godown_id}         | org accounts.inventory_masters:FULL  | - | - | 204
+GET    /accounts/stock-groups                | org accounts.inventory_masters:READ  | - | - | 200 StockGroupOut[]
+POST   /accounts/stock-groups                | org accounts.inventory_masters:WRITE | - | StockGroupIn | 201 StockGroupOut
+PATCH  /accounts/stock-groups/{stock_group_id} | org accounts.inventory_masters:WRITE | - | StockGroupIn | 200 StockGroupOut
+DELETE /accounts/stock-groups/{stock_group_id} | org accounts.inventory_masters:FULL | - | - | 204
+GET    /accounts/stock-items                 | org accounts.inventory_masters:READ  | q?:str stock_group_id?:uuid target_type?:str limit?:int offset?:int | - | 200 Page<StockItemOut>
+POST   /accounts/stock-items                 | org accounts.inventory_masters:WRITE | - | StockItemIn | 201 StockItemOut
+GET    /accounts/stock-items/{item_id}       | org accounts.inventory_masters:READ  | - | - | 200 StockItemOut
+PATCH  /accounts/stock-items/{item_id}       | org accounts.inventory_masters:WRITE | - | StockItemIn | 200 StockItemOut
+DELETE /accounts/stock-items/{item_id}       | org accounts.inventory_masters:FULL  | - | - | 204
+POST   /accounts/stock-items/upload-url      | org accounts.inventory_masters:WRITE | - | StockItemUploadIn | 200 UploadTicket
+GET    /accounts/settings                    | org accounts.vouchers:READ | - | - | 200 AccountsSettings
+PUT    /accounts/settings                    | org accounts.vouchers:FULL | - | AccountsSettings | 200 AccountsSettings
+
+# ------------------------------------------------------------------ accounts: vouchers & inventory
+enum VoucherStatus = REGULAR | OPTIONAL | MEMORANDUM | POST_DATED | CANCELLED
+enum BillRefType = NEW_REF | AGAINST_REF | ADVANCE | ON_ACCOUNT
+model BillAllocation { ref_type: BillRefType  ref_name: str  amount: decimal  due_date?: date | null }
+model EntryIn { ledger_id: uuid  entry_type: DrCr  amount: decimal  cost_centre_id?: uuid | null  bill_allocations?: BillAllocation[]  instrument_no?: str | null  instrument_date?: date | null }
+model InventoryIn { stock_item_id: uuid  godown_id: uuid  movement_type: str  quantity: decimal  rate: decimal  amount?: decimal  batch_number?: str | null  gst_rate?: decimal | null }
+model GstIn { place_of_supply_state_code?: str | null  reverse_charge?: bool  is_export?: bool  is_sez?: bool }
+model VoucherIn { voucher_type_id: uuid  voucher_date: date  party_ledger_id?: uuid | null  supplier_invoice_no?: str | null  supplier_invoice_date?: date | null  status?: VoucherStatus  narration?: str | null  entries: EntryIn[]  inventory?: InventoryIn[]  gst?: GstIn | null  linked_period_run_id?: uuid | null  linked_step_id?: uuid | null  attachment_document_ids?: uuid[]  edit_reason?: str | null }
+model EntryOut { id: uuid  ledger_id: uuid  ledger_name: str  entry_type: DrCr  amount: decimal  cost_centre_id: uuid | null  cost_centre_name: str | null  bill_allocations: BillAllocation[]  instrument_no: str | null  instrument_date: date | null  bank_reconciliation_date: date | null }
+model InventoryOut { id: uuid  stock_item_id: uuid  stock_item_name: str  uom: str  godown_id: uuid  godown_name: str  movement_type: str  quantity: decimal  rate: decimal  amount: decimal  batch_number: str | null  gst_rate: decimal | null }
+model DocumentRef { id: uuid  title: str  file_mime_type: str | null }
+model VoucherSummary { id: uuid  voucher_number: str  voucher_date: date  voucher_type_id: uuid  voucher_type_name: str  base_type: str  party_ledger_id: uuid | null  party_name: str | null  total_amount: decimal  status: VoucherStatus  narration: str | null  linked_period_run_id: uuid | null  created_at: datetime }
+model VoucherOut extends VoucherSummary { supplier_invoice_no: str | null  supplier_invoice_date: date | null  gst_metadata: json | null  linked_step_id: uuid | null  entries: EntryOut[]  inventory: InventoryOut[]  attachments: DocumentRef[]  created_by_name: str  approved_by_name: str | null  cancel_reason: str | null  updated_at: datetime }
+model CancelIn { reason: str }
+model AttachDocumentIn { document_id: uuid }
+model TaxLineIn { ledger_id: uuid  stock_item_id?: uuid | null  quantity?: decimal | null  rate?: decimal | null  amount: decimal  gst_rate?: decimal | null  hsn_sac_code?: str | null }
+model ComputeTaxIn { voucher_type_id: uuid  voucher_date: date  party_ledger_id: uuid  lines: TaxLineIn[]  gst?: GstIn | null }
+model TaxBreakup { hsn_sac_code: str | null  gst_rate: decimal  taxable: decimal  cgst: decimal  sgst: decimal  igst: decimal  cess: decimal }
+model ComputeTaxOut { tax_split: str  taxable_total: decimal  cgst: decimal  sgst: decimal  igst: decimal  cess: decimal  round_off: decimal  invoice_total: decimal  breakup: TaxBreakup[]  suggested_entries: EntryIn[]  warnings: str[] }
+model StockSummaryRow { stock_item_id: uuid  name: str  stock_group_name: str | null  uom: str  valuation_method: str  quantity: decimal  rate: decimal  value: decimal  reorder_level: decimal | null  below_reorder: bool }
+model StockMovementOut { date: date  voucher_id: uuid  voucher_number: str  voucher_type: str  godown_name: str  inward_qty: decimal  outward_qty: decimal  rate: decimal  balance_qty: decimal  balance_value: decimal }
+
+GET    /accounts/vouchers                    | org accounts.vouchers:READ  | date_from?:date date_to?:date voucher_type_id?:uuid base_type?:str party_ledger_id?:uuid ledger_id?:uuid status?:VoucherStatus q?:str linked_period_run_id?:uuid limit?:int offset?:int | - | 200 Page<VoucherSummary>
+POST   /accounts/vouchers                    | org accounts.vouchers:WRITE | - | VoucherIn | 201 VoucherOut
+POST   /accounts/vouchers/compute-tax        | org accounts.vouchers:WRITE | - | ComputeTaxIn | 200 ComputeTaxOut
+GET    /accounts/vouchers/{voucher_id}       | org accounts.vouchers:READ  | - | - | 200 VoucherOut
+PUT    /accounts/vouchers/{voucher_id}       | org accounts.vouchers:WRITE | - | VoucherIn | 200 VoucherOut
+POST   /accounts/vouchers/{voucher_id}/cancel | org accounts.vouchers:FULL | - | CancelIn | 200 VoucherOut
+GET    /accounts/vouchers/{voucher_id}/edit-log | org accounts.vouchers:READ | - | - | 200 AuditLogOut[]
+POST   /accounts/vouchers/{voucher_id}/attachments | org accounts.vouchers:WRITE | - | AttachDocumentIn | 200 VoucherOut
+GET    /accounts/vouchers/{voucher_id}/print | org accounts.vouchers:READ | format?:str | - | 200 file(application/pdf)
+GET    /accounts/inventory/stock-summary     | org accounts.inventory_masters:READ | as_of?:date godown_id?:uuid stock_group_id?:uuid | - | 200 StockSummaryRow[]
+GET    /accounts/inventory/items/{item_id}/movements | org accounts.inventory_masters:READ | date_from:date date_to:date godown_id?:uuid | - | 200 StockMovementOut[]
+
+# ------------------------------------------------------------------ accounts: banking
+model BankAccountOut { ledger_id: uuid  name: str  bank_account: str | null  ifsc: str | null  book_balance: decimal  book_balance_type: DrCr  unreconciled_count: int  last_reconciled_on: date | null }
+model ReconEntryOut { entry_id: uuid  voucher_id: uuid  voucher_number: str  voucher_type: str  voucher_date: date  particulars: str  debit: decimal  credit: decimal  instrument_no: str | null  instrument_date: date | null  bank_reconciliation_date: date | null }
+model StatementLineOut { id: uuid  txn_date: date  value_date: date | null  description: str  reference: str | null  debit: decimal  credit: decimal  balance: decimal | null  status: str  matched_entry_id: uuid | null }
+model ReconciliationOut { ledger_id: uuid  as_of: date  balance_as_per_books: decimal  books_type: DrCr  amounts_not_reflected_in_bank: decimal  balance_as_per_bank: decimal  entries: ReconEntryOut[]  statement_lines: StatementLineOut[] }
+model ReconcileIn { bank_reconciliation_date: date | null }
+model StatementImportOut { import_id: uuid  format: str  lines_imported: int  auto_matched: int  duplicates_skipped: int }
+model MatchIn { entry_id: uuid }
+model ChequeBookIn { bank_ledger_id: uuid  from_number: str  to_number: str }
+model ChequeBookOut { id: uuid  bank_ledger_id: uuid  bank_name: str  from_number: str  to_number: str  next_number: str  used_count: int  created_at: datetime }
+model ChequeOut { entry_id: uuid  voucher_id: uuid  voucher_number: str  voucher_date: date  instrument_no: str  instrument_date: date | null  payee: str  amount: decimal  bank_ledger_id: uuid  status: str }
+
+GET    /accounts/banking/accounts            | org accounts.banking:READ  | - | - | 200 BankAccountOut[]
+GET    /accounts/banking/{ledger_id}/reconciliation | org accounts.banking:READ | as_of:date show?:str | - | 200 ReconciliationOut
+PATCH  /accounts/banking/entries/{entry_id}/reconcile | org accounts.banking:WRITE | - | ReconcileIn | 200 ReconEntryOut
+POST   /accounts/banking/{ledger_id}/statements/import | org accounts.banking:WRITE | - | multipart | 201 StatementImportOut
+GET    /accounts/banking/{ledger_id}/statement-lines | org accounts.banking:READ | status?:str limit?:int offset?:int | - | 200 Page<StatementLineOut>
+POST   /accounts/banking/statement-lines/{line_id}/match | org accounts.banking:WRITE | - | MatchIn | 200 StatementLineOut
+POST   /accounts/banking/statement-lines/{line_id}/unmatch | org accounts.banking:WRITE | - | - | 200 StatementLineOut
+POST   /accounts/banking/statement-lines/{line_id}/ignore | org accounts.banking:WRITE | - | - | 200 StatementLineOut
+GET    /accounts/banking/cheque-books        | org accounts.banking:READ  | bank_ledger_id?:uuid | - | 200 ChequeBookOut[]
+POST   /accounts/banking/cheque-books        | org accounts.banking:WRITE | - | ChequeBookIn | 201 ChequeBookOut
+GET    /accounts/banking/cheques             | org accounts.banking:READ  | bank_ledger_id?:uuid date_from?:date date_to?:date | - | 200 ChequeOut[]
+GET    /accounts/banking/cheques/{entry_id}/print | org accounts.banking:READ | - | - | 200 file(application/pdf)
+
+# ------------------------------------------------------------------ accounts: taxation
+model GstTotals { taxable: decimal  cgst: decimal  sgst: decimal  igst: decimal  cess: decimal }
+model GstSummaryOut { period: str  outward: GstTotals  inward_itc: GstTotals  rcm_liability: GstTotals  net_payable: GstTotals  voucher_count: int }
+model Gstr1Out { period: str  gstin: str | null  b2b: json[]  b2cl: json[]  b2cs: json[]  cdnr: json[]  cdnur: json[]  exp: json[]  hsn: json[]  totals: GstTotals  errors: GstValidationIssue[] }
+model Gstr3bOut { period: str  sec_3_1: json  sec_3_2: json  sec_4: json  sec_5: json  sec_6_1: json }
+model GstValidationIssue { voucher_id: uuid | null  voucher_number: str | null  severity: str  code: str  message: str }
+model Gstr2bImportOut { import_id: uuid  period: str  invoices: int }
+model ReconRow { gstin: str  supplier_name: str | null  invoice_no: str  invoice_date: date  taxable: decimal  tax: decimal  voucher_id: uuid | null  portal_taxable: decimal | null  portal_tax: decimal | null  difference: decimal | null }
+model Gstr2bReconOut { period: str  exact: ReconRow[]  partial: ReconRow[]  missing_in_books: ReconRow[]  missing_in_portal: ReconRow[] }
+model EinvoiceOut { voucher_id: uuid  kind: str  status: str  irn: str | null  ack_no: str | null  ack_date: datetime | null  signed_qr: str | null  eway_bill_no: str | null  valid_until: datetime | null }
+model EinvoiceCancelIn { reason_code: str  remarks: str }
+model EwayBillIn { transporter_id?: str | null  transporter_name?: str | null  vehicle_no?: str | null  distance_km: int  transport_mode: str }
+model TdsComputeIn { section: str  party_ledger_id: uuid  amount: decimal  voucher_date: date }
+model TdsComputeOut { applicable: bool  section: str  rate: decimal  tds_amount: decimal  threshold_info: str  pan_available: bool }
+model TdsSummaryRow { section: str  party_ledger_id: uuid  party_name: str  pan: str | null  amount_paid: decimal  tds_amount: decimal  deposited: bool }
+model TdsChallanOut { month: str  due_date: date  by_section: json[]  total: decimal }
+model TdsSectionOut { section: str  nature: str  threshold_single: decimal | null  threshold_annual: decimal | null  rate_individual: decimal  rate_company: decimal  rate_no_pan: decimal }
+
+GET    /accounts/taxation/gst/summary        | org accounts.taxation:READ | period:str | - | 200 GstSummaryOut
+GET    /accounts/taxation/gst/gstr1          | org accounts.taxation:READ | period:str | - | 200 Gstr1Out
+GET    /accounts/taxation/gst/gstr1/export   | org accounts.taxation:READ | period:str | - | 200 file(application/json)
+GET    /accounts/taxation/gst/gstr3b         | org accounts.taxation:READ | period:str | - | 200 Gstr3bOut
+GET    /accounts/taxation/gst/gstr3b/export  | org accounts.taxation:READ | period:str | - | 200 file(application/json)
+GET    /accounts/taxation/gst/validate       | org accounts.taxation:READ | period:str | - | 200 GstValidationIssue[]
+POST   /accounts/taxation/gst/gstr2b/import  | org accounts.taxation:WRITE | period:str | multipart | 201 Gstr2bImportOut
+GET    /accounts/taxation/gst/gstr2b/reconciliation | org accounts.taxation:READ | period:str | - | 200 Gstr2bReconOut
+GET    /accounts/taxation/einvoice/{voucher_id} | org accounts.taxation:READ | - | - | 200 EinvoiceOut[]
+POST   /accounts/taxation/einvoice/{voucher_id}/generate | org accounts.taxation:WRITE | - | - | 200 EinvoiceOut
+POST   /accounts/taxation/einvoice/{voucher_id}/cancel | org accounts.taxation:FULL | - | EinvoiceCancelIn | 200 EinvoiceOut
+POST   /accounts/taxation/ewaybill/{voucher_id}/generate | org accounts.taxation:WRITE | - | EwayBillIn | 200 EinvoiceOut
+GET    /accounts/taxation/tds/sections       | org accounts.taxation:READ | on_date?:date | - | 200 TdsSectionOut[]
+POST   /accounts/taxation/tds/compute        | org accounts.taxation:READ | - | TdsComputeIn | 200 TdsComputeOut
+GET    /accounts/taxation/tds/summary        | org accounts.taxation:READ | date_from:date date_to:date | - | 200 TdsSummaryRow[]
+GET    /accounts/taxation/tds/challan        | org accounts.taxation:READ | month:str | - | 200 TdsChallanOut
+GET    /accounts/taxation/tds/returns/{form:str} | org accounts.taxation:READ | quarter:str | - | 200 file(text/plain)
+
+# ------------------------------------------------------------------ accounts: reports & dashboard
+model TrialBalanceRow { kind: str  id: uuid  name: str  level: int  parent_id: uuid | null  opening_dr: decimal  opening_cr: decimal  debit: decimal  credit: decimal  closing_dr: decimal  closing_cr: decimal }
+model TrialBalanceOut { date_from: date  date_to: date  rows: TrialBalanceRow[]  total_debit: decimal  total_credit: decimal  difference: decimal }
+model StatementSection { label: str  amount: decimal  group_id: uuid | null  children: StatementSection[] }
+model ProfitLossOut { date_from: date  date_to: date  trading_debit: StatementSection[]  trading_credit: StatementSection[]  gross_profit: decimal  pnl_debit: StatementSection[]  pnl_credit: StatementSection[]  net_profit: decimal  closing_stock: decimal  opening_stock: decimal }
+model BalanceSheetOut { as_of: date  equity_and_liabilities: StatementSection[]  assets: StatementSection[]  total_liabilities: decimal  total_assets: decimal  difference: decimal }
+model CashFlowOut { date_from: date  date_to: date  operating: StatementSection[]  investing: StatementSection[]  financing: StatementSection[]  net_change: decimal  opening_cash: decimal  closing_cash: decimal }
+model RatioOut { key: str  label: str  value: decimal | null  formula: str }
+model AgeingRow { ledger_id: uuid  party_name: str  total: decimal  buckets: map<decimal>  msme_overdue: bool }
+model AgeingOut { kind: str  as_of: date  bucket_labels: str[]  rows: AgeingRow[]  totals: map<decimal> }
+model BatchCostRow { period_run_id: uuid  run_title: str  period_month: date  stock_item_name: str | null  accepted_qty: decimal  rejected_qty: decimal  total_debit: decimal  total_credit: decimal  net_cost: decimal  unit_cost: decimal  status: str }
+model KpiOut { key: str  label: str  value: decimal  change_pct: decimal | null }
+model CashFlowPoint { month: str  inflow: decimal  outflow: decimal }
+model AlertOut { severity: str  kind: str  message: str  link: str | null }
+model AccountsDashboardOut { kpis: KpiOut[]  cash_flow: CashFlowPoint[]  alerts: AlertOut[]  recent_vouchers: VoucherSummary[] }
+model ExceptionOut { kind: str  severity: str  message: str  entity_type: str  entity_id: uuid | null  link: str | null }
+
+GET    /accounts/dashboard                   | org accounts.dashboard:READ | - | - | 200 AccountsDashboardOut
+GET    /accounts/reports/trial-balance       | org accounts.reports:READ | date_from:date date_to:date mode?:str | - | 200 TrialBalanceOut
+GET    /accounts/reports/profit-loss         | org accounts.reports:READ | date_from:date date_to:date | - | 200 ProfitLossOut
+GET    /accounts/reports/balance-sheet       | org accounts.reports:READ | as_of:date | - | 200 BalanceSheetOut
+GET    /accounts/reports/cash-flow           | org accounts.reports:READ | date_from:date date_to:date | - | 200 CashFlowOut
+GET    /accounts/reports/ratios              | org accounts.reports:READ | date_from:date date_to:date | - | 200 RatioOut[]
+GET    /accounts/reports/ageing              | org accounts.reports:READ | kind:str as_of:date buckets?:str | - | 200 AgeingOut
+GET    /accounts/reports/day-book            | org accounts.reports:READ | date_from:date date_to:date limit?:int offset?:int | - | 200 Page<VoucherSummary>
+GET    /accounts/reports/batch-costing       | org accounts.reports:READ | date_from:date date_to:date | - | 200 BatchCostRow[]
+GET    /accounts/reports/{report:str}/export | org accounts.reports:READ | format:str date_from?:date date_to?:date as_of?:date kind?:str | - | 200 file(text/csv,application/pdf)
+GET    /accounts/utilities/exceptions        | org accounts.reports:READ | - | - | 200 ExceptionOut[]
+GET    /accounts/utilities/tally-export      | org accounts.reports:FULL | date_from:date date_to:date | - | 200 file(application/xml)
+
+# ------------------------------------------------------------------ payroll
+model SalaryComponent { name: str  amount: decimal }
+model SalaryStructure { basic: decimal  da?: decimal  hra?: decimal  special?: decimal  conveyance?: decimal  other_allowances?: SalaryComponent[]  other_deductions?: SalaryComponent[]  epf_applicable: bool  esic_applicable: bool  pt_applicable: bool  piece_rate?: decimal | null  monthly_tds_override?: decimal | null }
+model EmployeeOut { id: uuid  user_id: uuid | null  emp_code: str  full_name: str  department: str | null  designation: str | null  employee_category: str  date_of_joining: date  date_of_exit: date | null  pan: str | null  uan_epf: str | null  esic_ip_no: str | null  bank_account_no: str | null  bank_ifsc: str | null  tax_regime: str  salary_structure: SalaryStructure  monthly_gross: decimal  is_active: bool }
+model EmployeeIn { emp_code: str  full_name: str  user_id?: uuid | null  department?: str | null  designation?: str | null  employee_category?: str  date_of_joining: date  pan?: str | null  uan_epf?: str | null  esic_ip_no?: str | null  bank_account_no?: str | null  bank_ifsc?: str | null  tax_regime?: str  salary_structure: SalaryStructure }
+model EmployeeExitIn { date_of_exit: date }
+model PayrollSettingsOut { pt_state_code: str | null  salary_payable_ledger_id: uuid  direct_wages_ledger_id: uuid  admin_salary_ledger_id: uuid  employer_contrib_ledger_id: uuid  epf_payable_ledger_id: uuid  esic_payable_ledger_id: uuid  pt_payable_ledger_id: uuid  tds_payable_ledger_id: uuid  default_bank_ledger_id: uuid | null  working_days_basis: str }
+model PayrollSettingsIn { pt_state_code?: str | null  salary_payable_ledger_id?: uuid  direct_wages_ledger_id?: uuid  admin_salary_ledger_id?: uuid  employer_contrib_ledger_id?: uuid  epf_payable_ledger_id?: uuid  esic_payable_ledger_id?: uuid  pt_payable_ledger_id?: uuid  tds_payable_ledger_id?: uuid  default_bank_ledger_id?: uuid | null  working_days_basis?: str }
+model RunAllocation { period_run_id: uuid  share_pct: decimal }
+model AttendanceRow { employee_id: uuid  emp_code: str  full_name: str  employee_category: str  days_in_month: int  days_present: decimal  lop_days: decimal  overtime_hours: decimal  production_units: decimal  run_allocations: RunAllocation[]  finalized: bool }
+model AttendanceRowIn { employee_id: uuid  days_present: decimal  lop_days: decimal  overtime_hours?: decimal  production_units?: decimal  run_allocations?: RunAllocation[]  finalized?: bool }
+model AttendanceIn { month: str  rows: AttendanceRowIn[] }
+model AttendanceOut { month: str  rows: AttendanceRow[]  all_finalized: bool }
+model PayrollRunCreateIn { month: str }
+model PayrollLineOut { id: uuid  employee_id: uuid  emp_code: str  full_name: str  employee_category: str  days_worked: decimal  lop_days: decimal  overtime_hours: decimal  earnings_breakdown: map<decimal>  deductions_breakdown: map<decimal>  employer_contrib_breakdown: map<decimal>  gross: decimal  total_deductions: decimal  net_pay: decimal  period_run_allocations: json  payslip_document_id: uuid | null }
+model PayrollRunOut { id: uuid  pay_period_month: date  status: str  total_gross: decimal  total_deductions: decimal  total_net_pay: decimal  total_employer_contrib: decimal  employee_count: int  posted_voucher_id: uuid | null  payment_voucher_id: uuid | null  locked_by_name: str | null  locked_at: datetime | null  lines: PayrollLineOut[] }
+model PayrollRunSummary { id: uuid  pay_period_month: date  status: str  total_gross: decimal  total_net_pay: decimal  employee_count: int  locked_at: datetime | null }
+model MarkPaidIn { bank_ledger_id: uuid  payment_date: date }
+
+GET    /accounts/payroll/employees           | org accounts.payroll_employees:READ  | q?:str category?:str include_exited?:bool limit?:int offset?:int | - | 200 Page<EmployeeOut>
+POST   /accounts/payroll/employees           | org accounts.payroll_employees:WRITE | - | EmployeeIn | 201 EmployeeOut
+GET    /accounts/payroll/employees/{employee_id} | org accounts.payroll_employees:READ | - | - | 200 EmployeeOut
+PATCH  /accounts/payroll/employees/{employee_id} | org accounts.payroll_employees:WRITE | - | EmployeeIn | 200 EmployeeOut
+POST   /accounts/payroll/employees/{employee_id}/exit | org accounts.payroll_employees:FULL | - | EmployeeExitIn | 200 EmployeeOut
+GET    /accounts/payroll/settings            | org accounts.payroll_runs:READ | - | - | 200 PayrollSettingsOut
+PUT    /accounts/payroll/settings            | org accounts.payroll_runs:FULL | - | PayrollSettingsIn | 200 PayrollSettingsOut
+GET    /accounts/payroll/attendance          | org accounts.payroll_runs:READ  | month:str | - | 200 AttendanceOut
+PUT    /accounts/payroll/attendance          | org accounts.payroll_runs:WRITE | - | AttendanceIn | 200 AttendanceOut
+POST   /accounts/payroll/attendance/pull-operations | org accounts.payroll_runs:WRITE | month:str | - | 200 AttendanceOut
+GET    /accounts/payroll/runs                | org accounts.payroll_runs:READ  | - | - | 200 PayrollRunSummary[]
+POST   /accounts/payroll/runs                | org accounts.payroll_runs:WRITE | - | PayrollRunCreateIn | 201 PayrollRunOut
+GET    /accounts/payroll/runs/{run_id}       | org accounts.payroll_runs:READ  | - | - | 200 PayrollRunOut
+POST   /accounts/payroll/runs/{run_id}/recompute | org accounts.payroll_runs:WRITE | - | - | 200 PayrollRunOut
+POST   /accounts/payroll/runs/{run_id}/lock  | org accounts.payroll_runs:FULL  | - | - | 200 PayrollRunOut
+POST   /accounts/payroll/runs/{run_id}/mark-paid | org accounts.payroll_runs:FULL | - | MarkPaidIn | 200 PayrollRunOut
+DELETE /accounts/payroll/runs/{run_id}       | org accounts.payroll_runs:FULL  | - | - | 204
+GET    /accounts/payroll/runs/{run_id}/bank-file | org accounts.payroll_runs:FULL | format?:str | - | 200 file(text/csv)
+GET    /accounts/payroll/runs/{run_id}/payslips/{line_id} | org accounts.payroll_runs:READ | - | - | 200 file(application/pdf)
+GET    /accounts/payroll/runs/{run_id}/statutory/{kind:str} | org accounts.payroll_runs:READ | - | - | 200 file(text/plain,text/csv)
+
+# ------------------------------------------------------------------ operations
+enum NodeShape = OVAL | RECTANGLE | DIAMOND | PARALLEL | TERMINATOR
+enum Branch = PASS | REJECT | REWORK | DEFAULT
+enum StepStatus = PENDING | ACTIVE | PASSED | REJECTED | SKIPPED | LOCKED
+enum RunStatus = PLANNED | IN_PROGRESS | QC_HOLD | COMPLETED | CANCELLED
+model QcField { key: str  label: str  type: str  unit?: str | null  nominal?: decimal | null  tol_minus?: decimal | null  tol_plus?: decimal | null  options?: str[]  required?: bool }
+model PassCriteria { mode: str  expression?: str | null }
+model NodeConfig { trigger?: str | null  assigned_role_code?: str | null  machine?: str | null  std_cycle_time_mins?: decimal | null  instrument_required?: bool  qc_fields?: QcField[]  pass_criteria?: PassCriteria | null  reject_action?: str | null  sop_document_id?: uuid | null  skippable?: bool  commit_godown_id?: uuid | null  report_template_id?: uuid | null  notes?: str | null }
+model Position { x: decimal  y: decimal }
+model WorkflowNode { id: str  shape: NodeShape  label: str  position: Position  config: NodeConfig }
+model WorkflowEdge { id: str  source: str  target: str  branch: Branch  label?: str | null }
+model WorkflowGraph { nodes: WorkflowNode[]  edges: WorkflowEdge[] }
+model WorkflowSummary { id: uuid  template_key: uuid  name: str  description: str | null  version: int  status: str  stock_item_id: uuid | null  stock_item_name: str | null  iso_clause_ref: str | null  node_count: int  active_run_count: int  published_at: datetime | null  created_at: datetime }
+model WorkflowOut extends WorkflowSummary { graph_definition: WorkflowGraph  created_by_name: str }
+model WorkflowIn { name: str  description?: str | null  stock_item_id?: uuid | null  iso_clause_ref?: str | null  graph_definition?: WorkflowGraph | null  from_library_key?: str | null }
+model WorkflowUpdateIn { name?: str  description?: str | null  stock_item_id?: uuid | null  iso_clause_ref?: str | null  graph_definition?: WorkflowGraph }
+model ValidationIssue { node_id: str | null  edge_id: str | null  message: str }
+model WorkflowValidationOut { valid: bool  errors: ValidationIssue[]  warnings: ValidationIssue[] }
+model LibraryTemplateOut { key: str  name: str  description: str  iso_clause_ref: str | null  graph_definition: WorkflowGraph }
+model ItemStatsOut { run_count: int  active_run_count: int  last_run_at: datetime | null  avg_yield_pct: decimal | null  avg_unit_cost: decimal | null }
+model OpsItemOut extends StockItemOut { stats: ItemStatsOut  workflow_count: int }
+model RunCreateIn { workflow_id: uuid  run_title?: str | null  period_month: date  planned_qty: decimal  stock_item_id?: uuid | null  start_now?: bool }
+model QcReading { value: str | null  in_tolerance: bool | null  auto_filled: bool }
+model StepOut { id: uuid  node_id: str  step_name: str  node_shape: NodeShape  sequence: int  status: StepStatus  input_qty: decimal  accepted_qty: decimal  rejected_qty: decimal  rework_qty: decimal  qc_measurements: map<QcReading>  branch_taken: str | null  quick_qc: bool  is_locked: bool  executed_by_name: str | null  executed_at: datetime | null  signed_off_by_name: str | null  signed_off_at: datetime | null  override_reason: str | null  skip_reason: str | null  notes: str | null  instrument_id: uuid | null  ncr_id: uuid | null  attachment_count: int }
+model MoneyFlowLine { source: str  voucher_id: uuid | null  voucher_number: str | null  date: date  particulars: str  amount: decimal  step_id: uuid | null }
+model MoneyFlowOut { debits: MoneyFlowLine[]  credits: MoneyFlowLine[]  total_debit: decimal  total_credit: decimal  net_cost: decimal  accepted_qty: decimal  unit_cost: decimal }
+model RunSummary { id: uuid  run_title: str  period_month: date  status: RunStatus  planned_qty: decimal  accepted_qty: decimal  rejected_qty: decimal  rework_qty: decimal  yield_pct: decimal | null  computed_unit_cost: decimal  stock_item_id: uuid | null  stock_item_name: str | null  workflow_id: uuid  workflow_name: str  workflow_version: int  current_step_names: str[]  progress_pct: decimal  created_at: datetime }
+model RunOut extends RunSummary { graph_snapshot: WorkflowGraph  steps: StepOut[]  money_flow: MoneyFlowOut  cost_centre_id: uuid | null  doc_folder_id: uuid | null  hold_reason: str | null  cancel_reason: str | null  started_at: datetime | null  completed_at: datetime | null  created_by_name: str }
+model ReasonIn { reason: str }
+model OptionalReasonIn { reason?: str | null }
+model StepExecuteIn { input_qty: decimal  accepted_qty: decimal  rejected_qty: decimal  rework_qty?: decimal  measurements?: map<str>  quick_qc?: bool  instrument_id?: uuid | null  notes?: str | null  override_reason?: str | null  defect_description?: str | null }
+model NcrOut { id: uuid  ncr_number: str  period_run_id: uuid | null  run_title: str | null  run_step_id: uuid | null  step_name: str | null  rejected_qty: decimal  defect_description: str  root_cause_analysis: str | null  corrective_action: str | null  preventive_action: str | null  verification_notes: str | null  source: str  status: str  assigned_to: uuid | null  assigned_to_name: str | null  closed_by_name: str | null  closed_at: datetime | null  created_at: datetime }
+model StepExecuteOut { step: StepOut  run: RunSummary  activated_step_ids: uuid[]  ncr: NcrOut | null  stock_voucher_id: uuid | null }
+model RunPostingIn { entry_type: DrCr  amount: decimal  ledger_id: uuid  contra_ledger_id: uuid  voucher_date: date  narration?: str | null  step_id?: uuid | null }
+model RunPostingOut { voucher_id: uuid  money_flow: MoneyFlowOut }
+model LinkVoucherIn { voucher_id: uuid  step_id?: uuid | null }
+model NcrIn { period_run_id?: uuid | null  run_step_id?: uuid | null  rejected_qty: decimal  defect_description: str  assigned_to?: uuid | null }
+model NcrUpdateIn { defect_description?: str  root_cause_analysis?: str | null  corrective_action?: str | null  preventive_action?: str | null  assigned_to?: uuid | null  status?: str }
+model NcrCloseIn { verification_notes: str }
+model InstrumentOut { id: uuid  instrument_code: str  name: str  location: str | null  range_spec: str | null  least_count: str | null  last_calibrated_date: date  next_due_date: date  status: str  days_to_due: int  certificate_doc_id: uuid | null }
+model InstrumentIn { instrument_code: str  name: str  location?: str | null  range_spec?: str | null  least_count?: str | null  last_calibrated_date: date  next_due_date: date  certificate_doc_id?: uuid | null }
+model CalibrateIn { calibrated_on: date  next_due_date: date  certificate_doc_id?: uuid | null }
+model ChecklistItemOut { id: uuid  clause: str  title: str  description: str | null  status: str  evidence_document_ids: uuid[]  notes: str | null  updated_by_name: str | null  updated_at: datetime | null }
+model ChecklistUpdateIn { status?: str  evidence_document_ids?: uuid[]  notes?: str | null }
+model ClauseScore { clause: str  title: str  total: int  compliant: int  score_pct: decimal }
+model ReadinessOut { score_pct: decimal  by_clause: ClauseScore[]  open_ncrs: int  expired_instruments: int }
+model AuditorInviteIn { email: email  access_expires_at: datetime  stock_item_ids?: uuid[]  period_run_ids?: uuid[] }
+model OpsDashboardOut { kpis: KpiOut[]  active_runs: RunSummary[]  open_ncrs: NcrOut[]  calibration_due: InstrumentOut[]  readiness_pct: decimal  yield_series: json[] }
+
+GET    /operations/dashboard                 | org operations.dashboard:READ | - | - | 200 OpsDashboardOut
+GET    /operations/items                     | org operations.items:READ  | q?:str target_type?:str limit?:int offset?:int | - | 200 Page<OpsItemOut>
+POST   /operations/items                     | org operations.items:WRITE | - | StockItemIn | 201 OpsItemOut
+GET    /operations/items/{item_id}           | org operations.items:READ  | - | - | 200 OpsItemOut
+PATCH  /operations/items/{item_id}           | org operations.items:WRITE | - | StockItemIn | 200 OpsItemOut
+GET    /operations/items/{item_id}/runs      | org operations.items:READ  | - | - | 200 RunSummary[]
+GET    /operations/workflow-library          | org operations.workflows:READ | - | - | 200 LibraryTemplateOut[]
+GET    /operations/workflows                 | org operations.workflows:READ  | q?:str stock_item_id?:uuid all_versions?:bool | - | 200 WorkflowSummary[]
+POST   /operations/workflows                 | org operations.workflows:WRITE | - | WorkflowIn | 201 WorkflowOut
+GET    /operations/workflows/{workflow_id}   | org operations.workflows:READ  | - | - | 200 WorkflowOut
+PUT    /operations/workflows/{workflow_id}   | org operations.workflows:WRITE | - | WorkflowUpdateIn | 200 WorkflowOut
+DELETE /operations/workflows/{workflow_id}   | org operations.workflows:FULL  | - | - | 204
+POST   /operations/workflows/{workflow_id}/validate | org operations.workflows:READ | - | - | 200 WorkflowValidationOut
+POST   /operations/workflows/{workflow_id}/publish  | org operations.workflows:FULL | - | - | 200 WorkflowOut
+POST   /operations/workflows/{workflow_id}/new-version | org operations.workflows:WRITE | - | - | 201 WorkflowOut
+GET    /operations/workflows/{workflow_id}/versions | org operations.workflows:READ | - | - | 200 WorkflowSummary[]
+GET    /operations/runs                      | org operations.runs_execution:READ  | status?:RunStatus stock_item_id?:uuid period_month?:str q?:str limit?:int offset?:int | - | 200 Page<RunSummary>
+POST   /operations/runs                      | org operations.runs_execution:WRITE | - | RunCreateIn | 201 RunOut
+GET    /operations/runs/{run_id}             | org operations.runs_execution:READ  | - | - | 200 RunOut
+POST   /operations/runs/{run_id}/start       | org operations.runs_execution:WRITE | - | - | 200 RunOut
+POST   /operations/runs/{run_id}/hold        | org operations.runs_execution:WRITE | - | ReasonIn | 200 RunOut
+POST   /operations/runs/{run_id}/resume      | org operations.runs_execution:WRITE | - | - | 200 RunOut
+POST   /operations/runs/{run_id}/cancel      | org operations.runs_execution:FULL  | - | ReasonIn | 200 RunOut
+POST   /operations/runs/{run_id}/complete    | org operations.runs_execution:FULL  | - | - | 200 RunOut
+POST   /operations/runs/{run_id}/steps/{step_id}/execute | org operations.runs_execution:WRITE | - | StepExecuteIn | 200 StepExecuteOut
+POST   /operations/runs/{run_id}/steps/{step_id}/skip    | org operations.runs_execution:WRITE | - | ReasonIn | 200 StepExecuteOut
+POST   /operations/runs/{run_id}/steps/{step_id}/succeed | org operations.runs_execution:WRITE | - | OptionalReasonIn | 200 StepExecuteOut
+POST   /operations/runs/{run_id}/steps/{step_id}/signoff | org operations.qc_signoff:WRITE | - | - | 200 StepOut
+POST   /operations/runs/{run_id}/steps/{step_id}/reopen  | org operations.qc_signoff:FULL  | - | ReasonIn | 200 StepOut
+GET    /operations/runs/{run_id}/money-flow  | org operations.runs_accounting:READ  | - | - | 200 MoneyFlowOut
+POST   /operations/runs/{run_id}/postings    | org operations.runs_accounting:WRITE | - | RunPostingIn | 201 RunPostingOut
+POST   /operations/runs/{run_id}/linked-vouchers | org operations.runs_accounting:WRITE | - | LinkVoucherIn | 200 MoneyFlowOut
+DELETE /operations/runs/{run_id}/linked-vouchers/{voucher_id} | org operations.runs_accounting:WRITE | - | - | 204
+GET    /operations/runs/{run_id}/dossier     | org operations.runs_execution:READ | format:str save?:bool | - | 200 file(application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document)
+GET    /operations/ncr                       | org operations.iso_compliance:READ  | status?:str period_run_id?:uuid limit?:int offset?:int | - | 200 Page<NcrOut>
+POST   /operations/ncr                       | org operations.iso_compliance:WRITE | - | NcrIn | 201 NcrOut
+GET    /operations/ncr/{ncr_id}              | org operations.iso_compliance:READ  | - | - | 200 NcrOut
+PATCH  /operations/ncr/{ncr_id}              | org operations.iso_compliance:WRITE | - | NcrUpdateIn | 200 NcrOut
+POST   /operations/ncr/{ncr_id}/close        | org operations.iso_compliance:FULL  | - | NcrCloseIn | 200 NcrOut
+GET    /operations/instruments               | org operations.iso_compliance:READ  | status?:str | - | 200 InstrumentOut[]
+POST   /operations/instruments               | org operations.iso_compliance:WRITE | - | InstrumentIn | 201 InstrumentOut
+PATCH  /operations/instruments/{instrument_id} | org operations.iso_compliance:WRITE | - | InstrumentIn | 200 InstrumentOut
+POST   /operations/instruments/{instrument_id}/calibrate | org operations.iso_compliance:WRITE | - | CalibrateIn | 200 InstrumentOut
+GET    /operations/iso/checklist             | org operations.iso_compliance:READ  | - | - | 200 ChecklistItemOut[]
+PATCH  /operations/iso/checklist/{item_id}   | org operations.iso_compliance:WRITE | - | ChecklistUpdateIn | 200 ChecklistItemOut
+GET    /operations/iso/readiness             | org operations.iso_compliance:READ  | - | - | 200 ReadinessOut
+POST   /operations/iso/auditor-invites       | org operations.iso_compliance:FULL  | - | AuditorInviteIn | 201 InvitationOut
+
+# ------------------------------------------------------------------ documents
+enum ApprovalStatus = DRAFT | UNDER_REVIEW | APPROVED | OBSOLETE
+model FolderOut { id: uuid  parent_folder_id: uuid | null  name: str  system_kind: str | null  fy_label: str | null  month_date: date | null  is_system_locked: bool  linked_period_run_id: uuid | null  child_count: int  document_count: int  created_at: datetime }
+model FolderIn { parent_folder_id: uuid  name: str }
+model FolderUpdateIn { name?: str  parent_folder_id?: uuid }
+model EnsureMonthIn { month: date }
+model ReportBlock { id: str  type: str  data: json }
+model ReportContent { blocks: ReportBlock[] }
+model DocumentSummary { id: uuid  folder_id: uuid  title: str  source_type: str  file_name: str | null  file_mime_type: str | null  file_size: int | null  upload_status: str  iso_doc_number: str | null  revision_no: int  approval_status: ApprovalStatus  linked_voucher_id: uuid | null  linked_period_run_id: uuid | null  linked_step_id: uuid | null  linked_stock_item_id: uuid | null  prepared_by_name: str  created_at: datetime  updated_at: datetime }
+model DocumentOut extends DocumentSummary { rich_content: ReportContent | null  template_id: uuid | null  ocr_text: str | null  reviewed_by_name: str | null  review_comment: str | null  approved_by_name: str | null  approved_at: datetime | null  previous_revision_id: uuid | null  folder_path: str[]  can_delete: bool }
+model DocUploadIn { folder_id: uuid  title: str  file_name: str  content_type: str  size_bytes: int  source_type?: str  iso_doc_number?: str | null  linked_voucher_id?: uuid | null  linked_period_run_id?: uuid | null  linked_step_id?: uuid | null  linked_stock_item_id?: uuid | null }
+model DocUploadOut { document: DocumentOut  upload: UploadTicket }
+model CompleteUploadIn { checksum_sha256?: str | null  ocr_text?: str | null }
+model RenderContext { stock_item_id?: uuid | null  period_run_id?: uuid | null  step_id?: uuid | null  voucher_id?: uuid | null }
+model DocCreateIn { folder_id: uuid  title: str  source_type: str  template_id?: uuid | null  rich_content?: ReportContent | null  context?: RenderContext | null  iso_doc_number?: str | null  linked_period_run_id?: uuid | null  linked_step_id?: uuid | null  linked_stock_item_id?: uuid | null  linked_voucher_id?: uuid | null }
+model DocUpdateIn { title?: str  rich_content?: ReportContent | null  folder_id?: uuid  iso_doc_number?: str | null }
+model TransitionIn { to: ApprovalStatus  comment?: str | null }
+model ReviewIn { comment?: str | null }
+model ReviseIn { file?: UploadRequest | null }
+model ReviseOut { document: DocumentOut  upload: UploadTicket | null }
+model TemplateOut { id: uuid  template_type: str  name: str  description: str | null  is_system_default: bool  content_schema: json  created_by_name: str | null  created_at: datetime }
+model TemplateIn { template_type: str  name: str  description?: str | null  content_schema: json }
+model TemplateUpdateIn { name?: str  description?: str | null  content_schema?: json }
+model TemplateTokenOut { token: str  label: str  group: str  sample: str }
+model PreviewIn { context: RenderContext }
+model PreviewOut { rich_content: ReportContent  warnings: str[] }
+model SearchHit { document: DocumentSummary  snippet: str | null  folder_path: str[] }
+
+GET    /documents/folders                    | org documents.explorer:READ | parent_id?:uuid | - | 200 FolderOut[]
+POST   /documents/folders                    | org documents.capture_upload:WRITE | - | FolderIn | 201 FolderOut
+GET    /documents/folders/{folder_id}        | org documents.explorer:READ | - | - | 200 FolderOut
+GET    /documents/folders/{folder_id}/path   | org documents.explorer:READ | - | - | 200 FolderOut[]
+PATCH  /documents/folders/{folder_id}        | org documents.capture_upload:WRITE | - | FolderUpdateIn | 200 FolderOut
+DELETE /documents/folders/{folder_id}        | org documents.explorer:FULL | - | - | 204
+POST   /documents/folders/ensure-month       | org documents.templates:FULL | - | EnsureMonthIn | 200 FolderOut[]
+GET    /documents                            | org documents.explorer:READ | folder_id?:uuid q?:str source_type?:str approval_status?:ApprovalStatus linked_period_run_id?:uuid linked_step_id?:uuid linked_voucher_id?:uuid linked_stock_item_id?:uuid iso_only?:bool limit?:int offset?:int | - | 200 Page<DocumentSummary>
+GET    /documents/search                     | org documents.explorer:READ | q:str limit?:int | - | 200 SearchHit[]
+POST   /documents/upload-url                 | org documents.capture_upload:WRITE | - | DocUploadIn | 201 DocUploadOut
+POST   /documents/{document_id}/complete-upload | org documents.capture_upload:WRITE | - | CompleteUploadIn | 200 DocumentOut
+POST   /documents                            | org documents.editor:WRITE | - | DocCreateIn | 201 DocumentOut
+GET    /documents/{document_id}              | org documents.explorer:READ | - | - | 200 DocumentOut
+PATCH  /documents/{document_id}              | org documents.editor:WRITE | - | DocUpdateIn | 200 DocumentOut
+DELETE /documents/{document_id}              | org documents.explorer:FULL | - | - | 204
+GET    /documents/{document_id}/download-url | org documents.explorer:READ | - | - | 200 SignedUrlOut
+GET    /documents/{document_id}/export       | org documents.explorer:READ | format:str | - | 200 file(application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document)
+POST   /documents/{document_id}/transition   | org documents.editor:WRITE | - | TransitionIn | 200 DocumentOut
+POST   /documents/{document_id}/review       | org documents.iso_approval:WRITE | - | ReviewIn | 200 DocumentOut
+POST   /documents/{document_id}/revise       | org documents.editor:WRITE | - | ReviseIn | 201 ReviseOut
+GET    /documents/{document_id}/versions     | org documents.explorer:READ | - | - | 200 DocumentSummary[]
+GET    /documents/{document_id}/audit        | org documents.explorer:READ | - | - | 200 AuditLogOut[]
+GET    /documents/templates                  | org documents.templates:READ  | template_type?:str | - | 200 TemplateOut[]
+POST   /documents/templates                  | org documents.templates:WRITE | - | TemplateIn | 201 TemplateOut
+GET    /documents/templates/{template_id}    | org documents.templates:READ  | - | - | 200 TemplateOut
+PATCH  /documents/templates/{template_id}    | org documents.templates:WRITE | - | TemplateUpdateIn | 200 TemplateOut
+DELETE /documents/templates/{template_id}    | org documents.templates:FULL  | - | - | 204
+POST   /documents/templates/{template_id}/clone | org documents.templates:WRITE | - | - | 201 TemplateOut
+POST   /documents/templates/{template_id}/preview | org documents.templates:READ | - | PreviewIn | 200 PreviewOut
+GET    /documents/template-tokens            | org documents.templates:READ  | - | - | 200 TemplateTokenOut[]
+
+# ------------------------------------------------------------------ dev-only local storage (STORAGE_PROVIDER=local; 404 otherwise)
+PUT    /storage/local/{token:str}            | public | - | - | 204   # raw request body = file bytes (same as Supabase signed upload)
+GET    /storage/local/{token:str}            | public | - | - | 200 file(application/octet-stream)
+
+# ------------------------------------------------------------------ superadmin (separate auth, aud=inaiflow-admin)
+enum AdminRole = SUPERADMIN | SUPPORT_ADMIN | BILLING_ADMIN
+enum AdminLoginStatus = MFA_REQUIRED | MFA_SETUP_REQUIRED | PASSWORD_CHANGE_REQUIRED
+model AdminLoginIn { email: email  password: str }
+model AdminLoginOut { status: AdminLoginStatus  mfa_token: str  otpauth_uri: str | null }
+model AdminMfaVerifyIn { mfa_token: str  code: str  new_password?: str | null }
+model AdminMeOut { id: uuid  email: str  full_name: str  role: AdminRole  mfa_enabled: bool  last_login_at: datetime | null }
+model AdminLoginSuccessOut { token: TokenOut  admin: AdminMeOut }
+model AdminDashboardOut { orgs_total: int  orgs_active: int  orgs_trial: int  orgs_suspended: int  users_total: int  mrr_inr: decimal  active_runs: int  vouchers_today: int  storage_bytes: int  irp_health: str  signups_series: SignupPoint[]  recent_orgs: AdminOrgSummary[] }
+model AdminOrgSummary { id: uuid  legal_name: str  workspace_slug: str  public_join_code: str  gstin: str | null  industry_type: str  state_code: str  org_status: str  plan_code: str | null  member_count: int  owner_email: str  created_at: datetime  trial_ends_at: datetime | null }
+model AdminOrgDetail extends AdminOrgSummary { owner_user_id: uuid  owner_name: str  external_count: int  storage_used_bytes: int  quota_overrides: json  plan_id: uuid | null  contact_email: str  contact_phone: str  city: str  voucher_count: int  run_count: int }
+enum LifecycleAction = ACTIVATE | SUSPEND | ARCHIVE | EXTEND_TRIAL
+enum ImpersonationMode = READ_ONLY | FULL_SUPPORT
+enum UserAction = SUSPEND | UNSUSPEND | RESET_MFA | VERIFY_EMAIL | REVOKE_SESSIONS
+enum InvoiceStatus = DUE | PAID | VOID
+enum OrgStatus = ACTIVE | TRIAL | SUSPENDED | ARCHIVED
+model SignupPoint { date: date  count: int }
+model LifecycleIn { action: LifecycleAction  reason: str  trial_days?: int | null }
+model PlanChangeIn { plan_id: uuid  quota_overrides?: json  reason: str }
+model TransferOwnerIn { new_owner_user_id: uuid  reason: str }
+model ImpersonateIn { mode: ImpersonationMode  ticket_reference: str  reason: str }
+model ImpersonateOut { session_id: uuid  token: str  expires_at: datetime  launch_url: str }
+model AdminUserSummary { id: uuid  email: str  full_name: str  is_email_verified: bool  mfa_enabled: bool  is_suspended: bool  org_count: int  last_login_at: datetime | null  created_at: datetime }
+model AdminMembershipOut { org_id: uuid  org_name: str  role_code: str  status: str  access_expires_at: datetime | null }
+model AdminUserDetail extends AdminUserSummary { mobile: str | null  professional_reg_no: str | null  memberships: AdminMembershipOut[]  active_sessions: int }
+model UserActionIn { action: UserAction  reason: str }
+model ConfigOut { id: uuid  config_category: str  config_key: str  display_name: str  payload: json  version: int  is_active: bool  effective_from: date | null  updated_by_name: str | null  updated_at: datetime }
+model ConfigIn { config_category: str  config_key: str  display_name: str  payload: json  effective_from?: date | null  reason: str }
+model ConfigUpdateIn { display_name?: str  payload: json  is_active?: bool  effective_from?: date | null  reason: str }
+model ConfigVersionOut { version: int  payload: json  effective_from: date | null  change_reason: str | null  created_by_name: str | null  created_at: datetime }
+model ConfigPushIn { org_ids?: uuid[]  all_orgs?: bool  reason: str }
+model ConfigPushOut { orgs_updated: int  orgs_skipped: int }
+model PlanOut { id: uuid  plan_code: str  name: str  monthly_price_inr: decimal  annual_price_inr: decimal  max_internal_seats: int  max_external_collaborators: int  max_storage_gb: int  enabled_modules: map<bool>  is_active: bool  org_count: int  created_at: datetime }
+model PlanIn { plan_code: str  name: str  monthly_price_inr: decimal  annual_price_inr: decimal  max_internal_seats: int  max_external_collaborators: int  max_storage_gb: int  enabled_modules: map<bool>  is_active?: bool  reason: str }
+model PlanUpdateIn { name?: str  monthly_price_inr?: decimal  annual_price_inr?: decimal  max_internal_seats?: int  max_external_collaborators?: int  max_storage_gb?: int  enabled_modules?: map<bool>  is_active?: bool  reason: str }
+model SubscriptionInvoiceOut { id: uuid  org_id: uuid  org_name: str  invoice_number: str  period_start: date  period_end: date  amount_inr: decimal  status: InvoiceStatus  paid_at: datetime | null  created_at: datetime }
+model SubscriptionInvoiceIn { org_id: uuid  period_start: date  period_end: date  amount_inr: decimal  reason: str }
+model InvoiceStatusIn { status: InvoiceStatus  reason: str }
+model PlatformAuditOut { id: uuid  admin_id: uuid | null  admin_email: str | null  action: str  target_type: str  target_id: uuid | null  before_state: json | null  after_state: json | null  ip_address: str | null  created_at: datetime }
+model AdminAccountOut { id: uuid  email: str  full_name: str  role: AdminRole  is_active: bool  mfa_enabled: bool  last_login_at: datetime | null  created_at: datetime }
+model AdminAccountIn { email: email  full_name: str  role: AdminRole }
+model AdminAccountCreatedOut { admin: AdminAccountOut  temporary_password: str }
+model AdminAccountUpdateIn { role?: AdminRole  is_active?: bool  reason: str }
+model AdminOrgMemberOut { user_id: uuid  full_name: str  email: str  role_code: str  status: str }
+model SystemHealthOut { db: str  storage: str  email: str  tax_gateway: str  version: str  environment: str }
+
+POST   /admin/auth/login                     | public | - | AdminLoginIn | 200 AdminLoginOut
+POST   /admin/auth/mfa/verify                | public | - | AdminMfaVerifyIn | 200 AdminLoginSuccessOut
+POST   /admin/auth/refresh                   | public | - | - | 200 AdminLoginSuccessOut
+POST   /admin/auth/logout                    | public | - | - | 204
+GET    /admin/me                             | admin ANY | - | - | 200 AdminMeOut
+GET    /admin/dashboard                      | admin ANY | - | - | 200 AdminDashboardOut
+GET    /admin/organizations                  | admin ANY | q?:str status?:str plan_code?:str industry?:str limit?:int offset?:int | - | 200 Page<AdminOrgSummary>
+GET    /admin/organizations/{org_id}         | admin ANY | - | - | 200 AdminOrgDetail
+POST   /admin/organizations/{org_id}/lifecycle | admin SUPERADMIN,SUPPORT_ADMIN | - | LifecycleIn | 200 AdminOrgDetail
+PATCH  /admin/organizations/{org_id}/plan    | admin SUPERADMIN,BILLING_ADMIN | - | PlanChangeIn | 200 AdminOrgDetail
+POST   /admin/organizations/{org_id}/transfer-owner | admin SUPERADMIN | - | TransferOwnerIn | 200 AdminOrgDetail
+POST   /admin/organizations/{org_id}/impersonate | admin SUPERADMIN,SUPPORT_ADMIN | - | ImpersonateIn | 201 ImpersonateOut
+GET    /admin/users                          | admin SUPERADMIN,SUPPORT_ADMIN | q?:str suspended?:bool limit?:int offset?:int | - | 200 Page<AdminUserSummary>
+GET    /admin/users/{user_id}                | admin SUPERADMIN,SUPPORT_ADMIN | - | - | 200 AdminUserDetail
+POST   /admin/users/{user_id}/actions        | admin SUPERADMIN,SUPPORT_ADMIN | - | UserActionIn | 200 AdminUserDetail
+GET    /admin/configs                        | admin ANY | category?:str | - | 200 ConfigOut[]
+POST   /admin/configs                        | admin SUPERADMIN | - | ConfigIn | 201 ConfigOut
+GET    /admin/configs/{config_id}            | admin ANY | - | - | 200 ConfigOut
+PUT    /admin/configs/{config_id}            | admin SUPERADMIN | - | ConfigUpdateIn | 200 ConfigOut
+GET    /admin/configs/{config_id}/history    | admin ANY | - | - | 200 ConfigVersionOut[]
+POST   /admin/configs/{config_id}/push       | admin SUPERADMIN | - | ConfigPushIn | 200 ConfigPushOut
+GET    /admin/plans                          | admin ANY | - | - | 200 PlanOut[]
+POST   /admin/plans                          | admin SUPERADMIN,BILLING_ADMIN | - | PlanIn | 201 PlanOut
+PATCH  /admin/plans/{plan_id}                | admin SUPERADMIN,BILLING_ADMIN | - | PlanUpdateIn | 200 PlanOut
+GET    /admin/billing/invoices               | admin SUPERADMIN,BILLING_ADMIN | org_id?:uuid status?:str limit?:int offset?:int | - | 200 Page<SubscriptionInvoiceOut>
+POST   /admin/billing/invoices               | admin SUPERADMIN,BILLING_ADMIN | - | SubscriptionInvoiceIn | 201 SubscriptionInvoiceOut
+PATCH  /admin/billing/invoices/{invoice_id}  | admin SUPERADMIN,BILLING_ADMIN | - | InvoiceStatusIn | 200 SubscriptionInvoiceOut
+GET    /admin/audit-logs                     | admin ANY | action?:str target_type?:str admin_id?:uuid date_from?:date date_to?:date limit?:int offset?:int | - | 200 Page<PlatformAuditOut>
+GET    /admin/admins                         | admin SUPERADMIN | - | - | 200 AdminAccountOut[]
+POST   /admin/admins                         | admin SUPERADMIN | - | AdminAccountIn | 201 AdminAccountCreatedOut
+PATCH  /admin/admins/{admin_id}              | admin SUPERADMIN | - | AdminAccountUpdateIn | 200 AdminAccountOut
+GET    /admin/meta/template-tokens         | admin ANY | - | - | 200 TemplateTokenOut[]
+GET    /admin/organizations/{org_id}/members | admin SUPERADMIN,SUPPORT_ADMIN | - | - | 200 AdminOrgMemberOut[]
+GET    /admin/system/health                  | admin ANY | - | - | 200 SystemHealthOut

@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>InaiFlow · Audit event</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F9F9FB}
+a{color:#3538CD}a:hover{color:#2D31A6}
+</style>
+</helmet>
+<div style="position: relative; min-height: 100vh; font-family: 'Google Sans Flex','Google Sans',Inter,system-ui,sans-serif; color: #1D2939; font-size: 13px; background: #F9F9FB">
+<dc-import name="Org-Audit" hint-size="100%,860px"></dc-import>
+<div style="position: absolute; inset: 0; background: rgba(16,24,40,0.45); display: flex; justify-content: flex-end; align-items: stretch; padding: 0; box-sizing: border-box"><div role="dialog" aria-modal="true" aria-label="UPDATE · Voucher SAL/0456" style="width: 100%; max-width: 560px; height: 100%; border-radius: 16px 0 0 16px; box-sizing: border-box; background: #FFFFFF; box-shadow: 0 24px 48px rgba(16,24,40,0.18); display: flex; flex-direction: column; overflow: hidden"><div style="padding: 18px 20px; border-bottom: 1px solid #EAECF0; display: flex; align-items: flex-start; gap: 12px"><div style="flex: 1; display: flex; flex-direction: column; gap: 3px"><h2 style="margin: 0; font-size: 17px; font-weight: 600; color: #141414">UPDATE · Voucher SAL/0456</h2><span style="font-size: 12.5px; color: #667085">Accounts · 23 Nov 2026, 11:05:32 AM IST</span></div><a href="Org-Audit.dc.html" aria-label="Close" style="width: 32px; height: 32px; flex: none; border-radius: 8px; border: 1px solid #EAECF0; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#344054" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg></a></div><div style="padding: 20px; overflow: auto; flex: 1; display: flex; flex-direction: column; gap: 16px"><div><div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid #F2F4F7; font-size: 13px"><span style="color: #667085">User</span><span style="color: #1D2939; font-weight: 600; text-align: right">Jeyaprakash R · Org owner</span></div><div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid #F2F4F7; font-size: 13px"><span style="color: #667085">IP address</span><span style="color: #1D2939; font-weight: 600; text-align: right">103.21.58.14 · Chrome, Windows</span></div><div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid #F2F4F7; font-size: 13px"><span style="color: #667085">Module</span><span style="color: #1D2939; font-weight: 600; text-align: right">ACCOUNTS</span></div><div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid #F2F4F7; font-size: 13px"><span style="color: #667085">Entity</span><span style="color: #1D2939; font-weight: 600; text-align: right">vouchers · 7f3c…e21a</span></div><div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid #F2F4F7; font-size: 13px"><span style="color: #667085">Reason</span><span style="color: #1D2939; font-weight: 600; text-align: right">Rate revised per PO-0318 amendment</span></div><div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid #F2F4F7; font-size: 13px"><span style="color: #667085">Event hash</span><span style="color: #1D2939; font-weight: 600; text-align: right">9c1e…44fa · chained to previous</span></div></div><div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px"><div style="flex: 1 1 200px; display: flex; flex-direction: column; gap: 3px"><h2 style="margin: 0; font-size: 16px; font-weight: 600; color: #1D2939">Before</h2></div></div><pre style="margin: 0; padding: 12px; border-radius: 10px; background: #FEF3F2; color: #B42318; font-size: 11.5px; line-height: 1.5; white-space: pre-wrap; overflow: auto">{
+  "voucher": "SAL/0456",
+  "party": "Lakshmi Engg Works",
+  "items": [
+    { "item": "Component 1 · Flange 80NB",
+      "qty": 197,
+      "rate": 1420.00,
+      "amount": 279740.00 }
+  ],
+  "cgst": 25176.60,
+  "sgst": 25176.60,
+  "total": 330093.20
+}</pre><div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px"><div style="flex: 1 1 200px; display: flex; flex-direction: column; gap: 3px"><h2 style="margin: 0; font-size: 16px; font-weight: 600; color: #1D2939">After</h2></div></div><pre style="margin: 0; padding: 12px; border-radius: 10px; background: #ECFDF3; color: #067647; font-size: 11.5px; line-height: 1.5; white-space: pre-wrap; overflow: auto">{
+  "voucher": "SAL/0456",
+  "party": "Lakshmi Engg Works",
+  "items": [
+    { "item": "Component 1 · Flange 80NB",
+      "qty": 197,
+      "rate": 1443.00,
+      "amount": 284320.00 }
+  ],
+  "cgst": 25588.80,
+  "sgst": 25588.80,
+  "total": 335497.60
+}</pre><span style="font-size: 12px; font-weight: 400; color: #667085">Append-only. This entry cannot be edited or deleted, including by the Org owner.</span></div><div style="padding: 14px 20px; border-top: 1px solid #EAECF0; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px"><a href="Acc-Daybook.dc.html" style="display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 14px; border-radius: 10px; background: #FFFFFF; color: #1D2939; border: 1px solid #EAECF0; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; white-space: nowrap; box-sizing: border-box"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#344054" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>Open voucher</a><a href="Org-Audit.dc.html" style="display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 14px; border-radius: 10px; background: #FFFFFF; color: #1D2939; border: 1px solid #EAECF0; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; white-space: nowrap; box-sizing: border-box"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#344054" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"></path></svg>Export JSON</a></div></div></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":860}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

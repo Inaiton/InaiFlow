@@ -1,0 +1,217 @@
+# Modules may import app.core / app.adapters / app.seeds, their own package, and ONLY the interface.py
+# of other modules. One contract per module (direct imports only).
+[importlinter]
+root_packages =
+    app
+
+[importlinter:contract:core-independent]
+name = core, adapters and seeds never import modules or the app
+type = forbidden
+source_modules =
+    app.core
+    app.adapters
+    app.seeds
+forbidden_modules =
+    app.modules
+    app.main
+    app.cli
+
+[importlinter:contract:identity-private]
+name = only app.modules.identity.interface may be imported by other modules
+type = forbidden
+source_modules =
+    app.modules.organization
+    app.modules.rbac
+    app.modules.platform
+    app.modules.accounts
+    app.modules.taxation
+    app.modules.payroll
+    app.modules.operations
+    app.modules.documents
+    app.modules.superadmin
+forbidden_modules =
+    app.modules.identity
+ignore_imports =
+    app.modules.** -> app.modules.identity.interface
+allow_indirect_imports = True
+unmatched_ignore_imports_alerting = none
+
+[importlinter:contract:organization-private]
+name = only app.modules.organization.interface may be imported by other modules
+type = forbidden
+source_modules =
+    app.modules.identity
+    app.modules.rbac
+    app.modules.platform
+    app.modules.accounts
+    app.modules.taxation
+    app.modules.payroll
+    app.modules.operations
+    app.modules.documents
+    app.modules.superadmin
+forbidden_modules =
+    app.modules.organization
+ignore_imports =
+    app.modules.** -> app.modules.organization.interface
+allow_indirect_imports = True
+unmatched_ignore_imports_alerting = none
+
+[importlinter:contract:rbac-private]
+name = only app.modules.rbac.interface may be imported by other modules
+type = forbidden
+source_modules =
+    app.modules.identity
+    app.modules.organization
+    app.modules.platform
+    app.modules.accounts
+    app.modules.taxation
+    app.modules.payroll
+    app.modules.operations
+    app.modules.documents
+    app.modules.superadmin
+forbidden_modules =
+    app.modules.rbac
+ignore_imports =
+    app.modules.** -> app.modules.rbac.interface
+allow_indirect_imports = True
+unmatched_ignore_imports_alerting = none
+
+[importlinter:contract:platform-private]
+name = only app.modules.platform.interface may be imported by other modules
+type = forbidden
+source_modules =
+    app.modules.identity
+    app.modules.organization
+    app.modules.rbac
+    app.modules.accounts
+    app.modules.taxation
+    app.modules.payroll
+    app.modules.operations
+    app.modules.documents
+    app.modules.superadmin
+forbidden_modules =
+    app.modules.platform
+ignore_imports =
+    app.modules.** -> app.modules.platform.interface
+allow_indirect_imports = True
+unmatched_ignore_imports_alerting = none
+
+[importlinter:contract:accounts-private]
+name = only app.modules.accounts.interface may be imported by other modules
+type = forbidden
+source_modules =
+    app.modules.identity
+    app.modules.organization
+    app.modules.rbac
+    app.modules.platform
+    app.modules.taxation
+    app.modules.payroll
+    app.modules.operations
+    app.modules.documents
+    app.modules.superadmin
+forbidden_modules =
+    app.modules.accounts
+ignore_imports =
+    app.modules.** -> app.modules.accounts.interface
+allow_indirect_imports = True
+unmatched_ignore_imports_alerting = none
+
+[importlinter:contract:taxation-private]
+name = only app.modules.taxation.interface may be imported by other modules
+type = forbidden
+source_modules =
+    app.modules.identity
+    app.modules.organization
+    app.modules.rbac
+    app.modules.platform
+    app.modules.accounts
+    app.modules.payroll
+    app.modules.operations
+    app.modules.documents
+    app.modules.superadmin
+forbidden_modules =
+    app.modules.taxation
+ignore_imports =
+    app.modules.** -> app.modules.taxation.interface
+allow_indirect_imports = True
+unmatched_ignore_imports_alerting = none
+
+[importlinter:contract:payroll-private]
+name = only app.modules.payroll.interface may be imported by other modules
+type = forbidden
+source_modules =
+    app.modules.identity
+    app.modules.organization
+    app.modules.rbac
+    app.modules.platform
+    app.modules.accounts
+    app.modules.taxation
+    app.modules.operations
+    app.modules.documents
+    app.modules.superadmin
+forbidden_modules =
+    app.modules.payroll
+ignore_imports =
+    app.modules.** -> app.modules.payroll.interface
+allow_indirect_imports = True
+unmatched_ignore_imports_alerting = none
+
+[importlinter:contract:operations-private]
+name = only app.modules.operations.interface may be imported by other modules
+type = forbidden
+source_modules =
+    app.modules.identity
+    app.modules.organization
+    app.modules.rbac
+    app.modules.platform
+    app.modules.accounts
+    app.modules.taxation
+    app.modules.payroll
+    app.modules.documents
+    app.modules.superadmin
+forbidden_modules =
+    app.modules.operations
+ignore_imports =
+    app.modules.** -> app.modules.operations.interface
+allow_indirect_imports = True
+unmatched_ignore_imports_alerting = none
+
+[importlinter:contract:documents-private]
+name = only app.modules.documents.interface may be imported by other modules
+type = forbidden
+source_modules =
+    app.modules.identity
+    app.modules.organization
+    app.modules.rbac
+    app.modules.platform
+    app.modules.accounts
+    app.modules.taxation
+    app.modules.payroll
+    app.modules.operations
+    app.modules.superadmin
+forbidden_modules =
+    app.modules.documents
+ignore_imports =
+    app.modules.** -> app.modules.documents.interface
+allow_indirect_imports = True
+unmatched_ignore_imports_alerting = none
+
+[importlinter:contract:superadmin-private]
+name = only app.modules.superadmin.interface may be imported by other modules
+type = forbidden
+source_modules =
+    app.modules.identity
+    app.modules.organization
+    app.modules.rbac
+    app.modules.platform
+    app.modules.accounts
+    app.modules.taxation
+    app.modules.payroll
+    app.modules.operations
+    app.modules.documents
+forbidden_modules =
+    app.modules.superadmin
+ignore_imports =
+    app.modules.** -> app.modules.superadmin.interface
+allow_indirect_imports = True
+unmatched_ignore_imports_alerting = none

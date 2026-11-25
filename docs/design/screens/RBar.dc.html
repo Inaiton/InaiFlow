@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>InaiFlow · Button bar</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F9F9FB}
+a{color:#3538CD}a:hover{color:#2D31A6}
+</style>
+</helmet>
+<nav aria-label="Function keys" style="width: 100%; box-sizing: border-box; display: flex; flex-direction: column; gap: 2px; padding: 6px; border-radius: 14px; background: #F4F4F6; font-family: 'Google Sans Flex','Google Sans',Inter,system-ui,sans-serif; font-size: 12px">
+  <sc-for list="{{items}}" as="b" hint-placeholder-count="14">
+    <sc-if value="{{b.sep}}" hint-placeholder-val="{{ false }}"><span aria-hidden="true" style="height: 1px; background: #D0D5DD; margin: 5px 4px"></span></sc-if>
+    <sc-if value="{{b.btn}}" hint-placeholder-val="{{ true }}">
+      <a href="{{b.href}}" style="display: flex; align-items: center; gap: 6px; padding: 6px 8px; border-radius: 8px; background: {{b.bg}}; border: 1px solid {{b.bd}}; text-decoration: none; color: {{b.color}}; font-weight: {{b.weight}}">
+        <span style="min-width: 40px; font-size: 10.5px; font-weight: 700; color: {{b.kc}}">{{b.k}}</span><span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{b.label}}</span>
+      </a>
+    </sc-if>
+  </sc-for>
+</nav>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":150,"height":640}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const S = {"voucher": [{"sep": false, "k": "F2", "label": "Date", "href": "#"}, {"sep": false, "k": "F3", "label": "Company", "href": "Me-Personal.dc.html"}, {"sep": true}, {"sep": false, "k": "F4", "label": "Contra", "href": "Acc-V-Contra.dc.html"}, {"sep": false, "k": "F5", "label": "Payment", "href": "Acc-V-Payment.dc.html"}, {"sep": false, "k": "F6", "label": "Receipt", "href": "Acc-V-Receipt.dc.html"}, {"sep": false, "k": "F7", "label": "Journal", "href": "Acc-V-Journal.dc.html"}, {"sep": false, "k": "F8", "label": "Sales", "href": "Acc-V-Sales.dc.html"}, {"sep": false, "k": "F9", "label": "Purchase", "href": "Acc-Voucher.dc.html"}, {"sep": false, "k": "F10", "label": "Other vouchers", "href": "Glb-Create.dc.html"}, {"sep": false, "k": "Alt F5", "label": "Debit note", "href": "Acc-V-DebitNote.dc.html"}, {"sep": false, "k": "Alt F6", "label": "Credit note", "href": "Acc-V-CreditNote.dc.html"}, {"sep": false, "k": "Alt F7", "label": "Stock journal", "href": "Acc-V-StockJournal.dc.html"}, {"sep": false, "k": "Ctrl F7", "label": "Mfg journal", "href": "Acc-V-MfgJournal.dc.html"}, {"sep": false, "k": "Ctrl F8", "label": "Orders", "href": "Acc-V-Orders.dc.html"}, {"sep": true}, {"sep": false, "k": "Ctrl H", "label": "Change mode", "href": "#"}, {"sep": false, "k": "Ctrl I", "label": "More details", "href": "#"}, {"sep": false, "k": "Alt C", "label": "Create master", "href": "Acc-V-CreateLedger.dc.html"}, {"sep": false, "k": "Alt V", "label": "Attach bill", "href": "Doc-Upload.dc.html"}, {"sep": false, "k": "Ctrl A", "label": "Accept", "href": "Acc-V-Saved.dc.html"}, {"sep": false, "k": "Alt P", "label": "Print", "href": "Acc-V-Saved.dc.html"}, {"sep": false, "k": "F12", "label": "Configure", "href": "Acc-Settings-Invoice.dc.html"}], "report": [{"sep": false, "k": "F2", "label": "Period", "href": "#"}, {"sep": false, "k": "F3", "label": "Company", "href": "Me-Personal.dc.html"}, {"sep": false, "k": "F4", "label": "Ledger", "href": "Acc-Rep-Ledger.dc.html"}, {"sep": false, "k": "F5", "label": "Group-wise", "href": "Acc-Rep-Trial.dc.html"}, {"sep": true}, {"sep": false, "k": "Alt F1", "label": "Detailed", "href": "#"}, {"sep": false, "k": "Alt F2", "label": "Change period", "href": "#"}, {"sep": false, "k": "Ctrl B", "label": "Basis of values", "href": "#"}, {"sep": false, "k": "Alt N", "label": "Compare", "href": "#"}, {"sep": false, "k": "Ctrl J", "label": "Exceptions", "href": "Acc-Utilities.dc.html"}, {"sep": true}, {"sep": false, "k": "Alt E", "label": "Export", "href": "Acc-Util-Import.dc.html"}, {"sep": false, "k": "Alt P", "label": "Print", "href": "Acc-Settings-Invoice.dc.html"}, {"sep": false, "k": "Alt M", "label": "Share", "href": "Acc-Rep-Reminder.dc.html"}, {"sep": false, "k": "F12", "label": "Configure", "href": "#"}], "master": [{"sep": false, "k": "F2", "label": "Date", "href": "#"}, {"sep": false, "k": "F3", "label": "Company", "href": "Me-Personal.dc.html"}, {"sep": true}, {"sep": false, "k": "Alt C", "label": "Create", "href": "Acc-M-LedgerNew.dc.html"}, {"sep": false, "k": "Ctrl Ent", "label": "Alter", "href": "#"}, {"sep": false, "k": "Alt D", "label": "Delete", "href": "#"}, {"sep": false, "k": "Ctrl A", "label": "Accept", "href": "#"}, {"sep": true}, {"sep": false, "k": "Alt O", "label": "Import masters", "href": "Acc-Util-Import.dc.html"}, {"sep": false, "k": "Alt E", "label": "Export", "href": "Acc-Util-Import.dc.html"}, {"sep": false, "k": "F12", "label": "Configure", "href": "#"}], "default": [{"sep": false, "k": "F2", "label": "Date", "href": "#"}, {"sep": false, "k": "F3", "label": "Company", "href": "Me-Personal.dc.html"}, {"sep": true}, {"sep": false, "k": "F4", "label": "Contra", "href": "Acc-V-Contra.dc.html"}, {"sep": false, "k": "F5", "label": "Payment", "href": "Acc-V-Payment.dc.html"}, {"sep": false, "k": "F6", "label": "Receipt", "href": "Acc-V-Receipt.dc.html"}, {"sep": false, "k": "F7", "label": "Journal", "href": "Acc-V-Journal.dc.html"}, {"sep": false, "k": "F8", "label": "Sales", "href": "Acc-V-Sales.dc.html"}, {"sep": false, "k": "F9", "label": "Purchase", "href": "Acc-Voucher.dc.html"}, {"sep": true}, {"sep": false, "k": "Alt F2", "label": "Period", "href": "Acc-Util-FY.dc.html"}, {"sep": false, "k": "Alt G", "label": "Go To", "href": "Glb-Command.dc.html"}, {"sep": false, "k": "F12", "label": "Configure", "href": "Acc-Settings-Invoice.dc.html"}]};
+    const set = S[this.props.set ?? 'default'] ?? S['default'];
+    const act = this.props.active ?? '';
+    const items = set.map((b) => { const on = !b.sep && b.label === act; return Object.assign({}, b, { btn: !b.sep, bg: on ? '#FBEFEC' : '#FFFFFF', bd: on ? '#F4C7BC' : '#EAECF0', color: on ? '#A6452F' : '#344054', weight: on ? 600 : 500, kc: on ? '#C35E49' : '#4F46E5' }); });
+    return { items: items };
+  }
+}
+</script>
+</body>
+</html>

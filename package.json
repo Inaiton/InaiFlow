@@ -1,0 +1,16 @@
+{
+  "name": "inaiflow",
+  "private": true,
+  "packageManager": "pnpm@10.18.0",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "dev": "pnpm -r --parallel --filter ./client/*/web dev",
+    "dev:user": "pnpm --filter @inaiflow/user-web dev",
+    "dev:admin": "pnpm --filter @inaiflow/admin-web dev",
+    "build": "pnpm -r --filter ./client/*/web build",
+    "lint": "pnpm -r --filter ./client/*/web lint",
+    "typecheck": "pnpm -r --filter ./client/*/web typecheck",
+    "gen:contract": "python3 docs/api/gen_openapi.py",
+    "gen:api": "pnpm -r --filter ./client/*/web gen:api"
+  }
+}
