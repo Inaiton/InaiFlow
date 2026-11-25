@@ -14,6 +14,7 @@ Needs Node 22 + pnpm 10, Python 3.12 + uv, Postgres 15+.
 ```
 # one-time: a non-superuser owner role (RLS is only enforced for non-superusers)
 psql -U postgres -c "CREATE ROLE inaiflow_owner LOGIN PASSWORD 'inaiflow_owner' CREATEDB;"
+psql -U postgres -c "CREATE ROLE inaiflow_app NOLOGIN NOBYPASSRLS; GRANT inaiflow_app TO inaiflow_owner;"
 psql -U postgres -c "CREATE DATABASE inaiflow_dev OWNER inaiflow_owner;"
 
 cd server && cp .env.example .env      # set MFA_ENCRYPTION_KEY: uv run python -c "from cryptography.fernet import Fernet;print(Fernet.generate_key().decode())"

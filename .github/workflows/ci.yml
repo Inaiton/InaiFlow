@@ -44,6 +44,8 @@ jobs:
       - name: Create owner role
         run: |
           psql -h localhost -U postgres -c "CREATE ROLE inaiflow_owner LOGIN PASSWORD 'inaiflow_owner' CREATEDB;"
+          psql -h localhost -U postgres -c "CREATE ROLE inaiflow_app NOLOGIN NOBYPASSRLS;"
+          psql -h localhost -U postgres -c "GRANT inaiflow_app TO inaiflow_owner;"
       - run: uv sync --frozen
       - run: uv run ruff check .
       - run: uv run lint-imports
