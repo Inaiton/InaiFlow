@@ -1,0 +1,10 @@
+node_modules/
+.venv/
+.next/
+.local-storage/
+__pycache__/
+*.log
+.env*
+pnpm-lock.yaml
+uv.lock
+docs/api/openapi.json

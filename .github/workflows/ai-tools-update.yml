@@ -1,0 +1,37 @@
+name: ai-tools-update
+
+# Weekly: bump graphify, re-vendor addyosmani/agent-skills, open a PR for review (never pushes to main).
+on:
+  schedule:
+    - cron: "0 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: astral-sh/setup-uv@v5
+      - run: node scripts/ai-tools.mjs update
+      - name: Open or update the PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -z "$(git status --porcelain .claude)" ]; then echo "up to date"; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B chore/ai-tools-update
+          git add .claude
+          git commit -m "chore: update graphify and agent-skills"
+          git push --force origin chore/ai-tools-update
+          gh pr create --base main --head chore/ai-tools-update \
+            --title "chore: update graphify and agent-skills" \
+            --body "Automated weekly refresh of the pinned graphify version and the vendored agent-skills. Review the diff in .claude/ before merging." \
+            || echo "PR already open; branch updated"

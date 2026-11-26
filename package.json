@@ -4,6 +4,8 @@
   "packageManager": "pnpm@10.18.0",
   "engines": { "node": ">=22" },
   "scripts": {
+    "prepare": "node scripts/ai-tools.mjs setup",
+    "ai:update": "node scripts/ai-tools.mjs update",
     "dev": "pnpm -r --parallel --filter ./client/*/web dev",
     "dev:user": "pnpm --filter @inaiflow/user-web dev",
     "dev:admin": "pnpm --filter @inaiflow/admin-web dev",

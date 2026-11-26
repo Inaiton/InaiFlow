@@ -18,3 +18,5 @@ server/.local-storage/
 playwright-report/
 test-results/
 .DS_Store
+graphify-out/
+*.log
