@@ -1,0 +1,16 @@
+# OPT-IN local LLM gateway (OmniRoute). Not started by pnpm install, hooks or CI, and not wired into Claude Code.
+# Prompts sent through it go to whichever providers you configure in its dashboard - see README.md before using it on this codebase.
+services:
+  omniroute:
+    image: diegosouzapw/omniroute:3.8.54@sha256:2c4c755a54f8ce5341bc1856580b71f47a0f16a9afab4a55f84d540810631f68
+    container_name: omniroute
+    restart: unless-stopped
+    stop_grace_period: 40s # lets SQLite checkpoint
+    ports:
+      - "127.0.0.1:20128:20128" # loopback only; never publish on 0.0.0.0
+    environment:
+      INITIAL_PASSWORD: ${OMNIROUTE_PASSWORD:?copy .env.example to .env and set OMNIROUTE_PASSWORD}
+    volumes:
+      - omniroute-data:/app/data
+volumes:
+  omniroute-data:
